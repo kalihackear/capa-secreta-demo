@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mensajes cifrados | Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Tipografía moderna -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at top left, #5c6fff 0, #151824 40%, #05060a 100%);
+      --card-bg: rgba(12, 14, 24, 0.96);
+      --accent: #6c5ce7;
+      --accent-soft: rgba(108, 92, 231, 0.2);
+      --accent-strong: #a66bff;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --text-main: #f7f7ff;
+      --text-muted: #a0a4c0;
+      --danger: #ff7675;
+      --success: #00b894;
+      --shadow-soft: 0 18px 60px rgba(0, 0, 0, 0.55);
+      --radius-lg: 22px;
+      --radius-sm: 12px;
+      --transition-fast: 0.16s ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1000px;
+      background: radial-gradient(circle at top left, rgba(124, 92, 255, 0.18), transparent 55%);
+      border-radius: 30px;
+      padding: 1px;
+      position: relative;
+    }
+
+    .app-shell::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      pointer-events: none;
+    }
+
+    .app-card {
+      background: var(--card-bg);
+      border-radius: 30px;
+      padding: 26px 22px 22px;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (min-width: 900px) {
+      .app-card {
+        padding: 28px 28px 24px;
+      }
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .app-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .logo-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 16px;
+      background: radial-gradient(circle at 30% 30%, #ffffff, #a66bff 50%, #5c6fff 100%);
+      box-shadow: 0 0 16px rgba(166, 107, 255, 0.7);
+    }
+
+    .app-subtitle {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .pill-beta {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: linear-gradient(135deg, rgba(92, 105, 255, 0.3), rgba(158, 107, 255, 0.15));
+      color: var(--text-main);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 840px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      padding: 14px 14px 16px;
+      background: radial-gradient(circle at top left, rgba(123, 92, 255, 0.14), rgba(5, 6, 15, 0.96));
+      position: relative;
+    }
+
+    .panel + .panel {
+      background: radial-gradient(circle at top right, rgba(92, 235, 255, 0.12), rgba(5, 6, 15, 0.96));
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .panel-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 0.7rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .chip-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--success);
+      box-shadow: 0 0 12px rgba(0, 184, 148, 0.9);
+    }
+
+    .panel-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    label {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .label-right {
+      font-size: 0.7rem;
+      opacity: 0.8;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      resize: vertical;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(3, 5, 14, 0.92);
+      color: var(--text-main);
+      padding: 9px 10px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), transform 0.1s ease-out;
+    }
+
+    textarea:focus {
+      border-color: var(--accent-strong);
+      box-shadow: 0 0 0 1px rgba(166, 107, 255, 0.4);
+      background: rgba(6, 8, 22, 0.96);
+      transform: translateY(-0.5px);
+    }
+
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .password-input {
+      position: relative;
+      flex: 1;
+    }
+
+    .password-input input {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(3, 5, 14, 0.92);
+      color: var(--text-main);
+      padding: 7px 32px 7px 10px;
+      font-size: 0.8rem;
+      outline: none;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), transform 0.1s ease-out;
+    }
+
+    .password-input input::placeholder {
+      color: rgba(160, 164, 192, 0.7);
+    }
+
+    .password-input input:focus {
+      border-color: var(--accent-strong);
+      box-shadow: 0 0 0 1px rgba(166, 107, 255, 0.35);
+      background: rgba(6, 8, 22, 0.96);
+      transform: translateY(-0.5px);
+    }
+
+    .toggle-visibility {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.72rem;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(10, 12, 26, 0.96);
+      cursor: pointer;
+      color: var(--text-muted);
+      user-select: none;
+      transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform 0.1s ease-out;
+    }
+
+    .toggle-visibility:hover {
+      background: rgba(18, 20, 34, 0.96);
+      border-color: rgba(255, 255, 255, 0.26);
+      color: var(--text-main);
+      transform: translateY(-50%) translateY(-0.3px);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 0.8rem;
+      border-radius: 999px;
+      border: none;
+      padding: 7px 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    button:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(108, 92, 231, 0.6);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #7f6bff, #c36dff);
+    }
+
+    .btn-outline {
+      background: rgba(4, 6, 15, 0.96);
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .btn-outline:hover {
+      color: var(--text-main);
+      border-color: rgba(255, 255, 255, 0.28);
+      background: rgba(12, 14, 26, 0.96);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+      border-radius: 999px;
+      padding-inline: 8px;
+    }
+
+    .btn-ghost:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .status-bar {
+      margin-top: 10px;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(160, 164, 192, 0.7);
+    }
+
+    .status-dot.ok {
+      background: var(--success);
+      box-shadow: 0 0 10px rgba(0, 184, 148, 0.8);
+    }
+
+    .status-dot.error {
+      background: var(--danger);
+      box-shadow: 0 0 10px rgba(255, 118, 117, 0.8);
+    }
+
+    .status-right {
+      font-size: 0.7rem;
+      opacity: 0.9;
+    }
+
+    .hint-text {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .hint-highlight {
+      color: var(--accent-strong);
+      font-weight: 500;
+    }
+
+    .footer {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 600px) {
+      .footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    .footer span strong {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <section class="app-card">
+      <header class="app-header">
+        <div class="title-block">
+          <div class="app-title">
+            <div class="logo-dot"></div>
+            <span>Capa secreta · Demo local</span>
+          </div>
+          <p class="app-subtitle">
+            Cifra un mensaje con una contraseña compartida, pégalo en tu chat favorito y descífralo en el otro lado.
+          </p>
+        </div>
+        <span class="pill-beta">Modo prototipo</span>
+      </header>
+
+      <section style="margin-bottom: 14px;">
+        <label for="password">
+          Clave compartida
+          <span class="label-right">Usa la misma en ambos lados</span>
+        </label>
+        <div class="field-row">
+          <div class="password-input">
+            <input id="password" type="password" placeholder="Por ejemplo: mi frase súper secreta" autocomplete="off" />
+            <button class="toggle-visibility" type="button" id="togglePassword">Ver</button>
+          </div>
+          <button class="btn-ghost" type="button" id="generateHint">Idea</button>
+        </div>
+        <p class="hint-text">
+          Esta clave no se envía a ningún servidor y solo vive en tu navegador. Sin la misma clave, el mensaje seguirá cifrado.
+        </p>
+      </section>
+
+      <section class="layout">
+        <!-- Panel mensaje en claro -->
+        <article class="panel">
+          <header class="panel-header">
+            <span class="panel-title">Mensaje en claro</span>
+            <span class="chip">
+              <span class="chip-dot"></span>
+              Local y efímero
+            </span>
+          </header>
+
+          <div class="panel-body">
+            <label for="plainText">
+              Escribe lo que quieras enviar
+              <span class="label-right">Solo se cifra en tu navegador</span>
+            </label>
+            <textarea id="plainText" placeholder="Ejemplo: Mañana nos vemos a las 19:30 delante del cine."></textarea>
+
+            <div class="btn-row">
+              <button class="btn-primary" id="encryptBtn" type="button">
+                Cifrar y enviar al panel derecho
+              </button>
+              <button class="btn-outline" id="clearPlain" type="button">
+                Limpiar texto
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Panel mensaje cifrado -->
+        <article class="panel">
+          <header class="panel-header">
+            <span class="panel-title">Mensaje cifrado listo para copiar</span>
+            <span class="chip">
+              <span class="chip-dot"></span>
+              Pega en WhatsApp, Telegram, etc.
+            </span>
+          </header>
+
+          <div class="panel-body">
+            <label for="cipherText">
+              Mensaje cifrado
+              <span class="label-right">Incluye todo lo necesario para descifrar</span>
+            </label>
+            <textarea id="cipherText" placeholder="Aquí aparecerá el texto cifrado. Pégalo en tu app de chat."></textarea>
+
+            <div class="btn-row">
+              <button class="btn-outline" id="copyCipher" type="button">
+                Copiar cifrado
+              </button>
+              <button class="btn-primary" id="decryptBtn" type="button">
+                Descifrar y enviar al panel izquierdo
+              </button>
+              <button class="btn-outline" id="clearCipher" type="button">
+                Limpiar cifrado
+              </button>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="status-bar">
+        <div class="status-left">
+          <div class="status-dot" id="statusDot"></div>
+          <span id="statusText">Todo listo. Usa la misma clave en ambos navegadores para probarlo.</span>
+        </div>
+        <div class="status-right">
+          Nada se envía al servidor, todo se ejecuta de forma local en tu navegador.
+        </div>
+      </section>
+
+      <footer class="footer">
+        <span>
+          Flujo recomendado:
+          <strong>Cifra aquí → copia → pega en tu chat → la otra persona descifra con la misma clave.</strong>
+        </span>
+        <span>
+          Esta es solo una demo de concepto, no auditable todavía para uso crítico.
+        </span>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    // Utilidades de codificación
+    const enc = new TextEncoder();
+    const dec = new TextDecoder();
+
+    function bufToBase64(buffer) {
+      const bytes = new Uint8Array(buffer);
+      let binary = "";
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary);
+    }
+
+    function base64ToBuf(base64) {
+      const binary = atob(base64.trim());
+      const len = binary.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return bytes.buffer;
+    }
+
+    // Deriva una clave a partir de la contraseña usando PBKDF2
+    async function deriveKey(password, salt) {
+      const keyMaterial = await crypto.subtle.importKey(
+        "raw",
+        enc.encode(password),
+        { name: "PBKDF2" },
+        false,
+        ["deriveKey"]
+      );
+
+      return crypto.subtle.deriveKey(
+        {
+          name: "PBKDF2",
+          salt,
+          iterations: 100_000,
+          hash: "SHA-256"
+        },
+        keyMaterial,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["encrypt", "decrypt"]
+      );
+    }
+
+    // Cifrar
+    async function encryptText(plainText, password) {
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const key = await deriveKey(password, salt);
+
+      const encrypted = await crypto.subtle.encrypt(
+        {
+          name: "AES-GCM",
+          iv
+        },
+        key,
+        enc.encode(plainText)
+      );
+
+      // Concatenar salt + iv + ciphertext en un solo buffer y codificar en base64
+      const saltIvCipher = new Uint8Array(
+        salt.byteLength + iv.byteLength + encrypted.byteLength
+      );
+      saltIvCipher.set(salt, 0);
+      saltIvCipher.set(iv, salt.byteLength);
+      saltIvCipher.set(new Uint8Array(encrypted), salt.byteLength + iv.byteLength);
+
+      return bufToBase64(saltIvCipher.buffer);
+    }
+
+    // Descifrar
+    async function decryptText(cipherBase64, password) {
+      const data = new Uint8Array(base64ToBuf(cipherBase64));
+      if (data.byteLength < 16 + 12 + 1) {
+        throw new Error("Formato de mensaje cifrado no válido");
+      }
+
+      const salt = data.slice(0, 16);
+      const iv = data.slice(16, 28);
+      const ciphertext = data.slice(28);
+
+      const key = await deriveKey(password, salt);
+
+      const decrypted = await crypto.subtle.decrypt(
+        {
+          name: "AES-GCM",
+          iv
+        },
+        key,
+        ciphertext
+      );
+
+      return dec.decode(decrypted);
+    }
+
+    // Referencias a elementos UI
+    const passwordInput = document.getElementById("password");
+    const plainTextArea = document.getElementById("plainText");
+    const cipherTextArea = document.getElementById("cipherText");
+    const encryptBtn = document.getElementById("encryptBtn");
+    const decryptBtn = document.getElementById("decryptBtn");
+    const clearPlainBtn = document.getElementById("clearPlain");
+    const clearCipherBtn = document.getElementById("clearCipher");
+    const copyCipherBtn = document.getElementById("copyCipher");
+    const statusDot = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
+    const togglePasswordBtn = document.getElementById("togglePassword");
+    const generateHintBtn = document.getElementById("generateHint");
+
+    function setStatus(message, type = "neutral") {
+      statusText.textContent = message;
+
+      statusDot.classList.remove("ok", "error");
+
+      if (type === "ok") {
+        statusDot.classList.add("ok");
+      } else if (type === "error") {
+        statusDot.classList.add("error");
+      }
+    }
+
+    function requirePassword() {
+      const pwd = passwordInput.value.trim();
+      if (!pwd) {
+        setStatus("Introduce una clave compartida antes de cifrar o descifrar.", "error");
+        passwordInput.focus();
+        return null;
+      }
+      return pwd;
+    }
+
+    encryptBtn.addEventListener("click", async () => {
+      const pwd = requirePassword();
+      if (!pwd) return;
+
+      const plain = plainTextArea.value;
+      if (!plain.trim()) {
+        setStatus("Escribe un mensaje en claro para cifrar.", "error");
+        plainTextArea.focus();
+        return;
+      }
+
+      try {
+        const cipher = await encryptText(plain, pwd);
+        cipherTextArea.value = cipher;
+        setStatus("Mensaje cifrado. Copia el texto y pégalo en tu app de chat.", "ok");
+      } catch (err) {
+        console.error(err);
+        setStatus("Ocurrió un error al cifrar el mensaje.", "error");
+      }
+    });
+
+    decryptBtn.addEventListener("click", async () => {
+      const pwd = requirePassword();
+      if (!pwd) return;
+
+      const cipher = cipherTextArea.value.trim();
+      if (!cipher) {
+        setStatus("Pega un mensaje cifrado para intentar descifrarlo.", "error");
+        cipherTextArea.focus();
+        return;
+      }
+
+      try {
+        const plain = await decryptText(cipher, pwd);
+        plainTextArea.value = plain;
+        setStatus("Mensaje descifrado correctamente. Si ves algo raro, revisa la clave.", "ok");
+      } catch (err) {
+        console.error(err);
+        setStatus("No se pudo descifrar. Revisa la clave o el texto cifrado.", "error");
+      }
+    });
+
+    clearPlainBtn.addEventListener("click", () => {
+      plainTextArea.value = "";
+      setStatus("Texto en claro limpiado.", "neutral");
+    });
+
+    clearCipherBtn.addEventListener("click", () => {
+      cipherTextArea.value = "";
+      setStatus("Texto cifrado limpiado.", "neutral");
+    });
+
+    copyCipherBtn.addEventListener("click", async () => {
+      const text = cipherTextArea.value.trim();
+      if (!text) {
+        setStatus("Nada que copiar. Cifra algo primero.", "error");
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus("Texto cifrado copiado al portapapeles.", "ok");
+      } catch (err) {
+        console.error(err);
+        setStatus("No se pudo copiar automáticamente. Selecciona y copia manualmente.", "error");
+      }
+    });
+
+    togglePasswordBtn.addEventListener("click", () => {
+      const isPassword = passwordInput.type === "password";
+      passwordInput.type = isPassword ? "text" : "password";
+      togglePasswordBtn.textContent = isPassword ? "Ocultar" : "Ver";
+      passwordInput.focus();
+    });
+
+    generateHintBtn.addEventListener("click", () => {
+      if (!passwordInput.value.trim()) {
+        passwordInput.value = "playa-café-gato-2025";
+        setStatus("Ejemplo de clave añadido. Cámbiala por algo que solo tú conozcas.", "neutral");
+      } else {
+        setStatus("Usa siempre la misma clave en ambos lados para esta conversación.", "neutral");
+      }
+    });
+
+    // Estado inicial
+    setStatus("Todo listo. Usa la misma clave en ambos navegadores para probarlo.");
+  </script>
+</body>
+</html>
