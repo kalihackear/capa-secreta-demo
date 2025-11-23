@@ -2,536 +2,585 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Mensajes cifrados | Demo</title>
+  <title>CryptoChat demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- Tipografía moderna -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
   <style>
     :root {
-      --bg-gradient: radial-gradient(circle at top left, #5c6fff 0, #151824 40%, #05060a 100%);
-      --card-bg: rgba(12, 14, 24, 0.96);
-      --accent: #6c5ce7;
-      --accent-soft: rgba(108, 92, 231, 0.2);
-      --accent-strong: #a66bff;
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --text-main: #f7f7ff;
-      --text-muted: #a0a4c0;
-      --danger: #ff7675;
-      --success: #00b894;
-      --shadow-soft: 0 18px 60px rgba(0, 0, 0, 0.55);
-      --radius-lg: 22px;
-      --radius-sm: 12px;
-      --transition-fast: 0.16s ease-out;
+      color-scheme: dark;
+      --bg: #050913;
+      --card: #101525;
+      --card-soft: #151b2a;
+      --accent: #4f46e5;
+      --accent-soft: rgba(79, 70, 229, 0.12);
+      --accent-strong: #22d3ee;
+      --border: #1f2937;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --danger: #f97373;
+      --success: #4ade80;
     }
 
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
 
     body {
-      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg-gradient);
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #111827 0, #020617 50%, #000 100%);
+      color: var(--text);
       min-height: 100vh;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
     }
 
-    .app-shell {
-      width: 100%;
-      max-width: 1000px;
-      background: radial-gradient(circle at top left, rgba(124, 92, 255, 0.18), transparent 55%);
-      border-radius: 30px;
-      padding: 1px;
-      position: relative;
-    }
-
-    .app-shell::before {
-      content: "";
-      position: absolute;
-      inset: -1px;
-      border-radius: inherit;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      pointer-events: none;
-    }
-
-    .app-card {
-      background: var(--card-bg);
-      border-radius: 30px;
-      padding: 26px 22px 22px;
-      box-shadow: var(--shadow-soft);
-      position: relative;
-      overflow: hidden;
-    }
-
-    @media (min-width: 900px) {
-      .app-card {
-        padding: 28px 28px 24px;
-      }
+    .app {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 16px;
     }
 
     .app-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 18px;
+      padding: 16px 20px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.18), rgba(15, 23, 42, 0.96));
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.8);
+      margin-bottom: 16px;
     }
 
-    .title-block {
+    .app-header h1 {
+      margin: 0 0 6px;
+      font-size: 1.6rem;
+      letter-spacing: 0.02em;
+    }
+
+    .app-header p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+      padding-bottom: 4px;
+    }
+
+    .tab-button {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.05s ease;
+    }
+
+    .tab-button:hover {
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      transform: translateY(-0.5px);
+    }
+
+    .tab-button.active {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.4), rgba(56, 189, 248, 0.3));
+      color: white;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.18), rgba(15, 23, 42, 0.96));
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 16px 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.75);
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 1.2rem;
+    }
+
+    .card p {
+      margin: 0 0 10px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+      color: #e5e7eb;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    textarea {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      padding: 8px 10px;
+      font-size: 0.9rem;
+      resize: vertical;
+      min-height: 36px;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #6b7280;
+    }
+
+    textarea {
+      min-height: 80px;
+      line-height: 1.4;
+    }
+
+    button {
+      font-family: inherit;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: white;
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.1s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 26px rgba(30, 64, 175, 0.6);
+    }
+
+    .btn.secondary {
+      background: rgba(15, 23, 42, 0.9);
+      border-color: rgba(148, 163, 184, 0.7);
+      color: #e5e7eb;
+      box-shadow: none;
+    }
+
+    .btn.secondary:hover {
+      background: rgba(30, 64, 175, 0.4);
+    }
+
+    .buttons-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 6px 0 10px;
+    }
+
+    .status {
+      margin-top: 6px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      min-height: 1.2em;
+    }
+
+    .status.ok {
+      color: var(--success);
+    }
+
+    .status.error {
+      color: var(--danger);
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin: 4px 0 0;
+    }
+
+    .chat-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 12px;
+    }
+
+    .chat-list-panel {
+      background: var(--card-soft);
+      border-radius: 16px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      padding: 12px 10px;
+    }
+
+    .chat-list-panel h3 {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+    }
+
+    .chat-list {
+      max-height: 420px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .chat-item {
+      width: 100%;
+      text-align: left;
+      border-radius: 10px;
+      border: 1px solid rgba(55, 65, 81, 0.8);
+      background: rgba(15, 23, 42, 0.9);
+      padding: 6px 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: #e5e7eb;
       display: flex;
       flex-direction: column;
       gap: 2px;
     }
 
-    .app-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
+    .chat-item:hover {
+      background: rgba(30, 64, 175, 0.5);
     }
 
-    .logo-dot {
-      width: 22px;
-      height: 22px;
-      border-radius: 16px;
-      background: radial-gradient(circle at 30% 30%, #ffffff, #a66bff 50%, #5c6fff 100%);
-      box-shadow: 0 0 16px rgba(166, 107, 255, 0.7);
-    }
-
-    .app-subtitle {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
-
-    .pill-beta {
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 0.68rem;
-      letter-spacing: 0.09em;
-      text-transform: uppercase;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      background: linear-gradient(135deg, rgba(92, 105, 255, 0.3), rgba(158, 107, 255, 0.15));
-      color: var(--text-main);
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 1.15fr 1fr;
-      gap: 18px;
-    }
-
-    @media (max-width: 840px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .panel {
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border-subtle);
-      padding: 14px 14px 16px;
-      background: radial-gradient(circle at top left, rgba(123, 92, 255, 0.14), rgba(5, 6, 15, 0.96));
-      position: relative;
-    }
-
-    .panel + .panel {
-      background: radial-gradient(circle at top right, rgba(92, 235, 255, 0.12), rgba(5, 6, 15, 0.96));
-    }
-
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .panel-title {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--text-muted);
-    }
-
-    .chip {
-      border-radius: 999px;
-      padding: 4px 9px;
-      font-size: 0.7rem;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: var(--text-muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .chip-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: var(--success);
-      box-shadow: 0 0 12px rgba(0, 184, 148, 0.9);
-    }
-
-    .panel-body {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    label {
-      font-size: 0.76rem;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-    }
-
-    .label-right {
-      font-size: 0.7rem;
-      opacity: 0.8;
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 120px;
-      resize: vertical;
-      border-radius: var(--radius-sm);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(3, 5, 14, 0.92);
-      color: var(--text-main);
-      padding: 9px 10px;
-      font-size: 0.85rem;
-      font-family: inherit;
-      outline: none;
-      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), transform 0.1s ease-out;
-    }
-
-    textarea:focus {
+    .chat-item.active {
       border-color: var(--accent-strong);
-      box-shadow: 0 0 0 1px rgba(166, 107, 255, 0.4);
-      background: rgba(6, 8, 22, 0.96);
-      transform: translateY(-0.5px);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.3), rgba(15, 23, 42, 0.95));
     }
 
-    .field-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .chat-name {
+      font-weight: 500;
+      font-size: 0.87rem;
     }
 
-    .password-input {
-      position: relative;
-      flex: 1;
-    }
-
-    .password-input input {
-      width: 100%;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(3, 5, 14, 0.92);
-      color: var(--text-main);
-      padding: 7px 32px 7px 10px;
-      font-size: 0.8rem;
-      outline: none;
-      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), transform 0.1s ease-out;
-    }
-
-    .password-input input::placeholder {
-      color: rgba(160, 164, 192, 0.7);
-    }
-
-    .password-input input:focus {
-      border-color: var(--accent-strong);
-      box-shadow: 0 0 0 1px rgba(166, 107, 255, 0.35);
-      background: rgba(6, 8, 22, 0.96);
-      transform: translateY(-0.5px);
-    }
-
-    .toggle-visibility {
-      position: absolute;
-      right: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 0.72rem;
-      padding: 3px 7px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      background: rgba(10, 12, 26, 0.96);
-      cursor: pointer;
-      color: var(--text-muted);
-      user-select: none;
-      transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform 0.1s ease-out;
-    }
-
-    .toggle-visibility:hover {
-      background: rgba(18, 20, 34, 0.96);
-      border-color: rgba(255, 255, 255, 0.26);
-      color: var(--text-main);
-      transform: translateY(-50%) translateY(-0.3px);
-    }
-
-    .btn-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    button {
-      font-family: inherit;
-      font-size: 0.8rem;
-      border-radius: 999px;
-      border: none;
-      padding: 7px 14px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+    .chat-id {
+      font-size: 0.75rem;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    button:active {
-      transform: translateY(1px) scale(0.99);
-      box-shadow: none;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-      color: #fff;
-      box-shadow: 0 10px 30px rgba(108, 92, 231, 0.6);
-    }
-
-    .btn-primary:hover {
-      background: linear-gradient(135deg, #7f6bff, #c36dff);
-    }
-
-    .btn-outline {
-      background: rgba(4, 6, 15, 0.96);
-      color: var(--text-muted);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-    }
-
-    .btn-outline:hover {
-      color: var(--text-main);
-      border-color: rgba(255, 255, 255, 0.28);
-      background: rgba(12, 14, 26, 0.96);
-    }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--text-muted);
-      border-radius: 999px;
-      padding-inline: 8px;
-    }
-
-    .btn-ghost:hover {
-      color: var(--text-main);
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .status-bar {
-      margin-top: 10px;
-      font-size: 0.74rem;
-      color: var(--text-muted);
+    .chat-main {
+      background: var(--card);
+      border-radius: 20px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      padding: 10px 10px 12px;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
       gap: 8px;
+      min-height: 360px;
+      max-width: 480px;
+      margin: 0 auto;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
     }
 
-    .status-left {
+    .chat-header h3 {
+      margin: 0 0 2px;
+      font-size: 1rem;
+    }
+
+    .chat-header p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .chat-password .row {
       display: flex;
-      align-items: center;
       gap: 6px;
+      align-items: center;
+      margin: 4px 0;
     }
 
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: rgba(160, 164, 192, 0.7);
+    .chat-password input {
+      flex: 1;
     }
 
-    .status-dot.ok {
-      background: var(--success);
-      box-shadow: 0 0 10px rgba(0, 184, 148, 0.8);
+    .chat-messages {
+      flex: 1;
+      min-height: 140px;
+      max-height: 260px;
+      overflow-y: auto;
+      border-radius: 16px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      padding: 8px;
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.95), rgba(3, 7, 18, 1));
+      font-size: 0.9rem;
     }
 
-    .status-dot.error {
-      background: var(--danger);
-      box-shadow: 0 0 10px rgba(255, 118, 117, 0.8);
+    .message {
+      margin-bottom: 6px;
+      max-width: 80%;
+      padding: 6px 8px;
+      border-radius: 14px;
     }
 
-    .status-right {
-      font-size: 0.7rem;
-      opacity: 0.9;
+    .message.me {
+      margin-left: auto;
+      background: rgba(79, 70, 229, 0.85);
     }
 
-    .hint-text {
+    .message.other {
+      margin-right: auto;
+      background: rgba(30, 64, 175, 0.85);
+    }
+
+    .message-text {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .message-meta {
       font-size: 0.72rem;
-      color: var(--text-muted);
+      color: #e5e7eb;
+      opacity: 0.8;
+      margin-top: 2px;
+      text-align: right;
+    }
+
+    .empty {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .incoming-panel,
+    .chat-input {
       margin-top: 4px;
     }
 
-    .hint-highlight {
-      color: var(--accent-strong);
-      font-weight: 500;
-    }
-
-    .footer {
-      margin-top: 14px;
+    .my-id-box {
       display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
       align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      font-size: 0.72rem;
-      color: var(--text-muted);
+      padding: 8px 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      font-size: 0.85rem;
     }
 
-    @media (max-width: 600px) {
-      .footer {
-        flex-direction: column;
-        align-items: flex-start;
+    .my-id-box code {
+      word-break: break-all;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.8rem;
+      color: var(--accent-strong);
+    }
+
+    @media (max-width: 800px) {
+      .chat-layout {
+        grid-template-columns: minmax(0, 1fr);
       }
-    }
 
-    .footer span strong {
-      color: var(--text-main);
-      font-weight: 500;
+      .chat-list-panel {
+        order: 2;
+      }
+
+      .chat-main {
+        order: 1;
+        max-width: 100%;
+      }
     }
   </style>
 </head>
 <body>
-  <main class="app-shell">
-    <section class="app-card">
-      <header class="app-header">
-        <div class="title-block">
-          <div class="app-title">
-            <div class="logo-dot"></div>
-            <span>Capa secreta · Demo local</span>
-          </div>
-          <p class="app-subtitle">
-            Cifra un mensaje con una contraseña compartida, pégalo en tu chat favorito y descífralo en el otro lado.
-          </p>
-        </div>
-        <span class="pill-beta">Modo prototipo</span>
-      </header>
+  <div class="app">
+    <header class="app-header">
+      <h1>CryptoChat demo</h1>
+      <p>
+        Prototipo con dos modos: cifrado manual y chats con doble clave
+        (compartida en cada chat y privada solo tuya). Todo el cifrado se hace en este dispositivo.
+      </p>
+    </header>
 
-      <section style="margin-bottom: 14px;">
-        <label for="password">
-          Clave compartida
-          <span class="label-right">Usa la misma en ambos lados</span>
-        </label>
-        <div class="field-row">
-          <div class="password-input">
-            <input id="password" type="password" placeholder="Por ejemplo: mi frase súper secreta" autocomplete="off" />
-            <button class="toggle-visibility" type="button" id="togglePassword">Ver</button>
-          </div>
-          <button class="btn-ghost" type="button" id="generateHint">Idea</button>
-        </div>
-        <p class="hint-text">
-          Esta clave no se envía a ningún servidor y solo vive en tu navegador. Sin la misma clave, el mensaje seguirá cifrado.
+    <div class="tabs">
+      <button class="tab-button active" data-tab="tool">Cifrado manual</button>
+      <button class="tab-button" data-tab="chats">Chats cifrados</button>
+    </div>
+
+    <!-- Pestaña de cifrado manual -->
+    <section id="tab-tool" class="tab-panel active">
+      <div class="card">
+        <h2>Cifrado manual compatible</h2>
+        <p>
+          Usa una contraseña compartida para cifrar mensajes que luego puedes pegar en cualquier app
+          de mensajería. Quien tenga la misma contraseña podrá descifrarlos.
         </p>
-      </section>
 
-      <section class="layout">
-        <!-- Panel mensaje en claro -->
-        <article class="panel">
-          <header class="panel-header">
-            <span class="panel-title">Mensaje en claro</span>
-            <span class="chip">
-              <span class="chip-dot"></span>
-              Local y efímero
-            </span>
-          </header>
-
-          <div class="panel-body">
-            <label for="plainText">
-              Escribe lo que quieras enviar
-              <span class="label-right">Solo se cifra en tu navegador</span>
-            </label>
-            <textarea id="plainText" placeholder="Ejemplo: Mañana nos vemos a las 19:30 delante del cine."></textarea>
-
-            <div class="btn-row">
-              <button class="btn-primary" id="encryptBtn" type="button">
-                Cifrar y enviar al panel derecho
-              </button>
-              <button class="btn-outline" id="clearPlain" type="button">
-                Limpiar texto
-              </button>
-            </div>
-          </div>
-        </article>
-
-        <!-- Panel mensaje cifrado -->
-        <article class="panel">
-          <header class="panel-header">
-            <span class="panel-title">Mensaje cifrado listo para copiar</span>
-            <span class="chip">
-              <span class="chip-dot"></span>
-              Pega en WhatsApp, Telegram, etc.
-            </span>
-          </header>
-
-          <div class="panel-body">
-            <label for="cipherText">
-              Mensaje cifrado
-              <span class="label-right">Incluye todo lo necesario para descifrar</span>
-            </label>
-            <textarea id="cipherText" placeholder="Aquí aparecerá el texto cifrado. Pégalo en tu app de chat."></textarea>
-
-            <div class="btn-row">
-              <button class="btn-outline" id="copyCipher" type="button">
-                Copiar cifrado
-              </button>
-              <button class="btn-primary" id="decryptBtn" type="button">
-                Descifrar y enviar al panel izquierdo
-              </button>
-              <button class="btn-outline" id="clearCipher" type="button">
-                Limpiar cifrado
-              </button>
-            </div>
-          </div>
-        </article>
-      </section>
-
-      <section class="status-bar">
-        <div class="status-left">
-          <div class="status-dot" id="statusDot"></div>
-          <span id="statusText">Todo listo. Usa la misma clave en ambos navegadores para probarlo.</span>
+        <div class="field">
+          <label for="password">Contraseña compartida</label>
+          <input id="password" type="password" autocomplete="off" />
         </div>
-        <div class="status-right">
-          Nada se envía al servidor, todo se ejecuta de forma local en tu navegador.
-        </div>
-      </section>
 
-      <footer class="footer">
-        <span>
-          Flujo recomendado:
-          <strong>Cifra aquí → copia → pega en tu chat → la otra persona descifra con la misma clave.</strong>
-        </span>
-        <span>
-          Esta es solo una demo de concepto, no auditable todavía para uso crítico.
-        </span>
-      </footer>
+        <div class="field">
+          <label for="plainText">Mensaje en claro</label>
+          <textarea id="plainText" rows="4" placeholder="Escribe aquí el mensaje que quieres cifrar"></textarea>
+        </div>
+
+        <div class="buttons-row">
+          <button type="button" class="btn" id="encryptBtn">Cifrar mensaje</button>
+          <button type="button" class="btn secondary" id="clearBtn">Limpiar</button>
+        </div>
+
+        <div class="field">
+          <label for="cipherText">Mensaje cifrado (texto para compartir)</label>
+          <textarea id="cipherText" rows="4" placeholder="Aquí aparecerá el mensaje cifrado o pega uno para descifrar"></textarea>
+        </div>
+
+        <div class="buttons-row">
+          <button type="button" class="btn secondary" id="decryptBtn">Descifrar</button>
+          <button type="button" class="btn secondary" id="copyBtn">Copiar cifrado</button>
+        </div>
+
+        <div id="status" class="status"></div>
+      </div>
     </section>
-  </main>
+
+    <!-- Pestaña de chats cifrados -->
+    <section id="tab-chats" class="tab-panel">
+      <div class="card">
+        <h2>Clave privada local</h2>
+        <p>
+          Esta clave sirve para aplicar una segunda capa de cifrado a los chats cuando pulses
+          los botones de cifrado con clave privada. No se guarda en el navegador.
+        </p>
+        <div class="field">
+          <label for="privateKeyInput">Tu clave privada (solo tú)</label>
+          <input id="privateKeyInput" type="password" placeholder="Elige una clave privada fuerte" />
+        </div>
+        <p class="hint">
+          Para bloquear un chat deberás escribir esta clave y pulsar
+          "Cifrar con clave privada". Para verlo de nuevo, escribe la misma y pulsa
+          "Descifrar con clave privada".
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Tu ID anónimo</h2>
+        <p>
+          Este ID identifica esta instalación de la app. Compártelo con quien quieras chatear.
+          No hay correo ni número de teléfono.
+        </p>
+        <div class="my-id-box">
+          <code id="myIdValue"></code>
+          <button type="button" class="btn secondary" id="copyIdBtn">Copiar ID</button>
+        </div>
+        <p class="hint">
+          Si reinstalas la app o borras los datos del navegador se generará un ID nuevo.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Crear nuevo chat</h2>
+        <p>
+          Para iniciar un chat necesitas el ID de la otra persona.
+          La contraseña compartida del chat se escribe al usarlo, no se guarda aquí.
+        </p>
+        <form id="newChatForm">
+          <div class="field">
+            <label for="contactName">Nombre del contacto (opcional)</label>
+            <input id="contactName" type="text" placeholder="Ejemplo: Ana, Cliente X, etc." />
+          </div>
+          <div class="field">
+            <label for="contactId">ID de la otra persona</label>
+            <input id="contactId" type="text" placeholder="Pega aquí el ID que te han dado" required />
+          </div>
+          <div class="buttons-row">
+            <button type="submit" class="btn">Crear chat</button>
+          </div>
+          <p class="hint">
+            Cada chat usará una contraseña compartida única que solo sabéis tú y la otra persona.
+          </p>
+        </form>
+      </div>
+
+      <div class="chat-layout">
+        <aside class="chat-list-panel">
+          <h3>Chats</h3>
+          <div id="chatList" class="chat-list"></div>
+        </aside>
+
+        <div class="chat-main">
+          <div class="chat-header">
+            <h3 id="chatTitle">Selecciona un chat</h3>
+            <p class="hint" id="chatSubtitle"></p>
+          </div>
+
+          <div class="buttons-row">
+            <button type="button" class="btn secondary" id="privateLockBtn">Cifrar con clave privada</button>
+            <button type="button" class="btn secondary" id="privateUnlockBtn">Descifrar con clave privada</button>
+          </div>
+          <p class="hint">
+            Cifrar con clave privada envuelve todo el historial de este chat encima del cifrado compartido.
+            Para verlo luego necesitas primero tu clave privada y después la contraseña compartida.
+          </p>
+
+          <div class="chat-password">
+            <label for="chatPassword">Contraseña compartida de este chat</label>
+            <div class="row">
+              <input id="chatPassword" type="password" placeholder="Ejemplo: perroAzul42" />
+              <button type="button" class="btn secondary" id="sharedUnlockBtn">Ver en claro</button>
+              <button type="button" class="btn secondary" id="sharedLockBtn">Ver cifrado</button>
+            </div>
+            <p class="hint">
+              Esta contraseña solo la sabéis tú y la otra persona. No se guarda en la app.
+            </p>
+          </div>
+
+          <div id="chatMessages" class="chat-messages">
+            <p class="empty">
+              No hay chat seleccionado.
+            </p>
+          </div>
+
+          <div class="incoming-panel">
+            <div class="field">
+              <label for="incomingCipher">Pegar mensaje cifrado recibido (opcional)</label>
+              <textarea id="incomingCipher" rows="2" placeholder="Pega aquí un texto cifrado que te hayan enviado para guardarlo en el chat"></textarea>
+            </div>
+            <div class="buttons-row">
+              <button type="button" class="btn secondary" id="addIncomingBtn">Añadir al chat</button>
+            </div>
+          </div>
+
+          <div class="chat-input">
+            <div class="field">
+              <label for="chatMessageInput">Mensaje en claro para este chat</label>
+              <textarea id="chatMessageInput" rows="3" placeholder="Escribe aquí tu mensaje. Se cifrará con la contraseña del chat. Ctrl+Enter para enviar."></textarea>
+            </div>
+            <div class="buttons-row">
+              <button type="button" class="btn" id="sendMessageBtn">Cifrar y guardar mensaje</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 
   <script>
-    // Utilidades de codificación
     const enc = new TextEncoder();
     const dec = new TextDecoder();
 
@@ -554,7 +603,6 @@
       return bytes.buffer;
     }
 
-    // Deriva una clave a partir de la contraseña usando PBKDF2
     async function deriveKey(password, salt) {
       const keyMaterial = await crypto.subtle.importKey(
         "raw",
@@ -568,7 +616,7 @@
         {
           name: "PBKDF2",
           salt,
-          iterations: 100_000,
+          iterations: 100000,
           hash: "SHA-256"
         },
         keyMaterial,
@@ -578,7 +626,6 @@
       );
     }
 
-    // Cifrar
     async function encryptText(plainText, password) {
       const salt = crypto.getRandomValues(new Uint8Array(16));
       const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -593,7 +640,6 @@
         enc.encode(plainText)
       );
 
-      // Concatenar salt + iv + ciphertext en un solo buffer y codificar en base64
       const saltIvCipher = new Uint8Array(
         salt.byteLength + iv.byteLength + encrypted.byteLength
       );
@@ -604,7 +650,6 @@
       return bufToBase64(saltIvCipher.buffer);
     }
 
-    // Descifrar
     async function decryptText(cipherBase64, password) {
       const data = new Uint8Array(base64ToBuf(cipherBase64));
       if (data.byteLength < 16 + 12 + 1) {
@@ -629,127 +674,591 @@
       return dec.decode(decrypted);
     }
 
-    // Referencias a elementos UI
-    const passwordInput = document.getElementById("password");
-    const plainTextArea = document.getElementById("plainText");
-    const cipherTextArea = document.getElementById("cipherText");
-    const encryptBtn = document.getElementById("encryptBtn");
-    const decryptBtn = document.getElementById("decryptBtn");
-    const clearPlainBtn = document.getElementById("clearPlain");
-    const clearCipherBtn = document.getElementById("clearCipher");
-    const copyCipherBtn = document.getElementById("copyCipher");
-    const statusDot = document.getElementById("statusDot");
-    const statusText = document.getElementById("statusText");
-    const togglePasswordBtn = document.getElementById("togglePassword");
-    const generateHintBtn = document.getElementById("generateHint");
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, c => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[c]));
+    }
 
-    function setStatus(message, type = "neutral") {
-      statusText.textContent = message;
+    const MY_ID_KEY = "cryptoChat_myId_v2";
+    const STATE_KEY = "cryptoChat_state_double_v1";
 
-      statusDot.classList.remove("ok", "error");
+    let appState = { chats: [] };
+    let currentChatId = null;
+    let currentSharedPassword = "";
 
-      if (type === "ok") {
-        statusDot.classList.add("ok");
-      } else if (type === "error") {
-        statusDot.classList.add("error");
+    function generateId() {
+      const bytes = crypto.getRandomValues(new Uint8Array(16));
+      return Array.from(bytes)
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+    }
+
+    function getMyId() {
+      let id = localStorage.getItem(MY_ID_KEY);
+      if (!id) {
+        id = generateId();
+        localStorage.setItem(MY_ID_KEY, id);
+      }
+      return id;
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STATE_KEY);
+        if (!raw) {
+          appState = { chats: [] };
+          return;
+        }
+        const parsed = JSON.parse(raw);
+        if (!parsed || !Array.isArray(parsed.chats)) {
+          appState = { chats: [] };
+          return;
+        }
+        appState = {
+          chats: parsed.chats.map(chat => ({
+            id: chat.id || generateId(),
+            contactName: chat.contactName || "",
+            contactId: chat.contactId || "",
+            doubleLocked: !!chat.doubleLocked,
+            messages: Array.isArray(chat.messages)
+              ? chat.messages.map(msg => ({
+                  id: msg.id || Date.now().toString(),
+                  fromMe: !!msg.fromMe,
+                  cipher: msg.cipher || "",
+                  timestamp: msg.timestamp || Date.now()
+                }))
+              : []
+          }))
+        };
+      } catch (e) {
+        console.error("Error cargando estado", e);
+        appState = { chats: [] };
       }
     }
 
-    function requirePassword() {
-      const pwd = passwordInput.value.trim();
+    function saveState() {
+      try {
+        localStorage.setItem(STATE_KEY, JSON.stringify(appState));
+      } catch (e) {
+        console.error("Error guardando estado", e);
+      }
+    }
+
+    function findChatById(id) {
+      if (!id) return null;
+      return (appState.chats || []).find(c => c.id === id) || null;
+    }
+
+    function renderChatList() {
+      const container = document.getElementById("chatList");
+      container.innerHTML = "";
+      if (!appState.chats.length) {
+        const p = document.createElement("p");
+        p.className = "empty";
+        p.textContent = "Aún no hay chats. Crea uno con el formulario de arriba.";
+        container.appendChild(p);
+        return;
+      }
+      appState.chats.forEach(chat => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chat-item" + (chat.id === currentChatId ? " active" : "");
+        btn.dataset.chatId = chat.id;
+
+        const nameDiv = document.createElement("div");
+        nameDiv.className = "chat-name";
+        nameDiv.textContent = chat.contactName || "Sin nombre";
+
+        const idDiv = document.createElement("div");
+        idDiv.className = "chat-id";
+        idDiv.textContent = chat.contactId || "(sin ID)";
+
+        btn.appendChild(nameDiv);
+        btn.appendChild(idDiv);
+
+        btn.addEventListener("click", () => {
+          selectChat(chat.id);
+        });
+
+        container.appendChild(btn);
+      });
+    }
+
+    async function renderChatMessages() {
+      const container = document.getElementById("chatMessages");
+      const titleEl = document.getElementById("chatTitle");
+      const subtitleEl = document.getElementById("chatSubtitle");
+      container.innerHTML = "";
+
+      const chat = findChatById(currentChatId);
+
+      if (!chat) {
+        titleEl.textContent = "Selecciona un chat";
+        subtitleEl.textContent = "";
+        const p = document.createElement("p");
+        p.className = "empty";
+        p.textContent = "No hay chat seleccionado.";
+        container.appendChild(p);
+        return;
+      }
+
+      titleEl.textContent = chat.contactName || "Chat";
+      subtitleEl.textContent = chat.contactId ? "ID: " + chat.contactId : "";
+
+      if (chat.doubleLocked) {
+        const p = document.createElement("p");
+        p.className = "empty";
+        p.textContent = "Chat bloqueado con tu clave privada. Introduce la clave arriba y pulsa Descifrar con clave privada.";
+        container.appendChild(p);
+        return;
+      }
+
+      if (!chat.messages || !chat.messages.length) {
+        const p = document.createElement("p");
+        p.className = "empty";
+        p.textContent = "Todavía no hay mensajes en este chat.";
+        container.appendChild(p);
+        return;
+      }
+
+      if (!currentSharedPassword) {
+        chat.messages.forEach(msg => {
+          const div = document.createElement("div");
+          div.className = "message " + (msg.fromMe ? "me" : "other");
+
+          const textDiv = document.createElement("div");
+          textDiv.className = "message-text";
+          const snippet = msg.cipher
+            ? msg.cipher.slice(0, 32) + (msg.cipher.length > 32 ? "…" : "")
+            : "[cifrado]";
+          textDiv.textContent = "[cifrado] " + snippet;
+
+          const metaDiv = document.createElement("div");
+          metaDiv.className = "message-meta";
+          const time = msg.timestamp ? new Date(msg.timestamp) : null;
+          const timeStr = time ? time.toLocaleTimeString() : "";
+          metaDiv.textContent =
+            (msg.fromMe ? "Tú" : "Otro") +
+            (timeStr ? " · " + timeStr : "") +
+            " · cifrado con contraseña compartida";
+
+          div.appendChild(textDiv);
+          div.appendChild(metaDiv);
+          container.appendChild(div);
+        });
+
+        const note = document.createElement("p");
+        note.className = "hint";
+        note.textContent = "Escribe la contraseña compartida y pulsa Ver en claro para ver los mensajes.";
+        container.appendChild(note);
+        container.scrollTop = container.scrollHeight;
+        return;
+      }
+
+      for (const msg of chat.messages) {
+        const div = document.createElement("div");
+        div.className = "message " + (msg.fromMe ? "me" : "other");
+        let text;
+        try {
+          text = await decryptText(msg.cipher, currentSharedPassword);
+        } catch (e) {
+          console.error("Error descifrando mensaje", e);
+          text = "No se ha podido descifrar este mensaje. ¿Contraseña compartida correcta?";
+        }
+        const time = msg.timestamp ? new Date(msg.timestamp) : null;
+        const timeStr = time ? time.toLocaleTimeString() : "";
+        const textDiv = document.createElement("div");
+        textDiv.className = "message-text";
+        textDiv.innerHTML = escapeHtml(text);
+        const metaDiv = document.createElement("div");
+        metaDiv.className = "message-meta";
+        metaDiv.textContent = (msg.fromMe ? "Tú" : "Otro") + (timeStr ? " · " + timeStr : "");
+        div.appendChild(textDiv);
+        div.appendChild(metaDiv);
+        container.appendChild(div);
+      }
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function selectChat(chatId) {
+      currentChatId = chatId;
+      currentSharedPassword = "";
+      const chatPasswordInput = document.getElementById("chatPassword");
+      chatPasswordInput.value = "";
+      renderChatList();
+      renderChatMessages().catch(console.error);
+    }
+
+    async function privateLockCurrentChat() {
+      const chat = findChatById(currentChatId);
+      const privateKeyInput = document.getElementById("privateKeyInput");
+      const chatPasswordInput = document.getElementById("chatPassword");
+
+      if (!chat) {
+        alert("Selecciona un chat primero.");
+        return;
+      }
+      if (chat.doubleLocked) {
+        alert("Este chat ya está cifrado con tu clave privada.");
+        return;
+      }
+      const priv = privateKeyInput.value.trim();
+      if (!priv) {
+        alert("Escribe tu clave privada en la parte superior.");
+        privateKeyInput.focus();
+        return;
+      }
+
+      try {
+        if (chat.messages && chat.messages.length) {
+          for (const msg of chat.messages) {
+            const newCipher = await encryptText(msg.cipher, priv);
+            msg.cipher = newCipher;
+          }
+        }
+        chat.doubleLocked = true;
+        saveState();
+        currentSharedPassword = "";
+        chatPasswordInput.value = "";
+        await renderChatMessages();
+      } catch (e) {
+        console.error(e);
+        alert("Error al cifrar el chat con la clave privada.");
+      }
+    }
+
+    async function privateUnlockCurrentChat() {
+      const chat = findChatById(currentChatId);
+      const privateKeyInput = document.getElementById("privateKeyInput");
+      const chatPasswordInput = document.getElementById("chatPassword");
+
+      if (!chat) {
+        alert("Selecciona un chat primero.");
+        return;
+      }
+      if (!chat.doubleLocked) {
+        alert("Este chat no está cifrado con tu clave privada.");
+        return;
+      }
+      const priv = privateKeyInput.value.trim();
+      if (!priv) {
+        alert("Escribe tu clave privada en la parte superior.");
+        privateKeyInput.focus();
+        return;
+      }
+
+      try {
+        const newCiphers = [];
+        if (chat.messages && chat.messages.length) {
+          for (const msg of chat.messages) {
+            const inner = await decryptText(msg.cipher, priv);
+            newCiphers.push(inner);
+          }
+        }
+        if (chat.messages && chat.messages.length) {
+          chat.messages.forEach((msg, idx) => {
+            msg.cipher = newCiphers[idx];
+          });
+        }
+        chat.doubleLocked = false;
+        saveState();
+        currentSharedPassword = "";
+        chatPasswordInput.value = "";
+        await renderChatMessages();
+      } catch (e) {
+        console.error(e);
+        alert("No se ha podido descifrar el chat con esa clave privada. ¿Es correcta?");
+      }
+    }
+
+    async function sharedUnlock() {
+      const chat = findChatById(currentChatId);
+      const chatPasswordInput = document.getElementById("chatPassword");
+      const pwd = chatPasswordInput.value.trim();
+
+      if (!chat) {
+        alert("Selecciona un chat primero.");
+        return;
+      }
+      if (chat.doubleLocked) {
+        alert("Primero tienes que descifrar el chat con tu clave privada.");
+        return;
+      }
       if (!pwd) {
-        setStatus("Introduce una clave compartida antes de cifrar o descifrar.", "error");
-        passwordInput.focus();
-        return null;
+        alert("Escribe la contraseña compartida del chat.");
+        chatPasswordInput.focus();
+        return;
       }
-      return pwd;
+      currentSharedPassword = pwd;
+      await renderChatMessages();
     }
 
-    encryptBtn.addEventListener("click", async () => {
-      const pwd = requirePassword();
-      if (!pwd) return;
+    function sharedLock() {
+      currentSharedPassword = "";
+      const chatPasswordInput = document.getElementById("chatPassword");
+      chatPasswordInput.value = "";
+      renderChatMessages().catch(console.error);
+    }
 
-      const plain = plainTextArea.value;
-      if (!plain.trim()) {
-        setStatus("Escribe un mensaje en claro para cifrar.", "error");
-        plainTextArea.focus();
+    async function sendCurrentMessage() {
+      const chat = findChatById(currentChatId);
+      const chatPasswordInput = document.getElementById("chatPassword");
+      const textarea = document.getElementById("chatMessageInput");
+      const text = textarea.value.trim();
+
+      if (!chat) {
+        alert("Crea o selecciona un chat primero.");
+        return;
+      }
+      if (chat.doubleLocked) {
+        alert("Primero descifra el chat con tu clave privada para poder enviar mensajes.");
+        return;
+      }
+      if (!text) return;
+
+      const pwd = currentSharedPassword || chatPasswordInput.value.trim();
+      if (!pwd) {
+        alert("Escribe la contraseña compartida del chat y pulsa Ver en claro al menos una vez.");
+        chatPasswordInput.focus();
         return;
       }
 
       try {
-        const cipher = await encryptText(plain, pwd);
-        cipherTextArea.value = cipher;
-        setStatus("Mensaje cifrado. Copia el texto y pégalo en tu app de chat.", "ok");
-      } catch (err) {
-        console.error(err);
-        setStatus("Ocurrió un error al cifrar el mensaje.", "error");
+        const cipher = await encryptText(text, pwd);
+        if (!Array.isArray(chat.messages)) chat.messages = [];
+        chat.messages.push({
+          id: Date.now().toString(),
+          fromMe: true,
+          cipher,
+          timestamp: Date.now()
+        });
+        saveState();
+        textarea.value = "";
+        currentSharedPassword = pwd;
+        await renderChatMessages();
+      } catch (e) {
+        console.error(e);
+        alert("Error al cifrar el mensaje.");
       }
-    });
+    }
 
-    decryptBtn.addEventListener("click", async () => {
-      const pwd = requirePassword();
-      if (!pwd) return;
+    async function addIncomingCipher() {
+      const chat = findChatById(currentChatId);
+      const textarea = document.getElementById("incomingCipher");
+      const cipher = textarea.value.trim();
 
-      const cipher = cipherTextArea.value.trim();
-      if (!cipher) {
-        setStatus("Pega un mensaje cifrado para intentar descifrarlo.", "error");
-        cipherTextArea.focus();
+      if (!chat) {
+        alert("Selecciona primero un chat.");
         return;
       }
-
-      try {
-        const plain = await decryptText(cipher, pwd);
-        plainTextArea.value = plain;
-        setStatus("Mensaje descifrado correctamente. Si ves algo raro, revisa la clave.", "ok");
-      } catch (err) {
-        console.error(err);
-        setStatus("No se pudo descifrar. Revisa la clave o el texto cifrado.", "error");
-      }
-    });
-
-    clearPlainBtn.addEventListener("click", () => {
-      plainTextArea.value = "";
-      setStatus("Texto en claro limpiado.", "neutral");
-    });
-
-    clearCipherBtn.addEventListener("click", () => {
-      cipherTextArea.value = "";
-      setStatus("Texto cifrado limpiado.", "neutral");
-    });
-
-    copyCipherBtn.addEventListener("click", async () => {
-      const text = cipherTextArea.value.trim();
-      if (!text) {
-        setStatus("Nada que copiar. Cifra algo primero.", "error");
+      if (chat.doubleLocked) {
+        alert("Primero descifra el chat con tu clave privada antes de añadir mensajes.");
         return;
       }
-      try {
-        await navigator.clipboard.writeText(text);
-        setStatus("Texto cifrado copiado al portapapeles.", "ok");
-      } catch (err) {
-        console.error(err);
-        setStatus("No se pudo copiar automáticamente. Selecciona y copia manualmente.", "error");
+      if (!cipher) return;
+
+      if (!Array.isArray(chat.messages)) chat.messages = [];
+      chat.messages.push({
+        id: Date.now().toString() + "r",
+        fromMe: false,
+        cipher,
+        timestamp: Date.now()
+      });
+      saveState();
+      textarea.value = "";
+      await renderChatMessages();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!window.crypto || !window.crypto.subtle) {
+        alert("Tu navegador no soporta Web Crypto. Prueba con un navegador moderno.");
       }
-    });
 
-    togglePasswordBtn.addEventListener("click", () => {
-      const isPassword = passwordInput.type === "password";
-      passwordInput.type = isPassword ? "text" : "password";
-      togglePasswordBtn.textContent = isPassword ? "Ocultar" : "Ver";
-      passwordInput.focus();
-    });
+      // Tabs
+      const tabButtons = document.querySelectorAll(".tab-button");
+      const tabPanels = document.querySelectorAll(".tab-panel");
+      tabButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const target = btn.getAttribute("data-tab");
+          tabButtons.forEach(b => b.classList.toggle("active", b === btn));
+          tabPanels.forEach(panel => {
+            panel.classList.toggle("active", panel.id === "tab-" + target);
+          });
+        });
+      });
 
-    generateHintBtn.addEventListener("click", () => {
-      if (!passwordInput.value.trim()) {
-        passwordInput.value = "playa-café-gato-2025";
-        setStatus("Ejemplo de clave añadido. Cámbiala por algo que solo tú conozcas.", "neutral");
-      } else {
-        setStatus("Usa siempre la misma clave en ambos lados para esta conversación.", "neutral");
+      // Cifrado manual
+      const passwordInput = document.getElementById("password");
+      const plainTextArea = document.getElementById("plainText");
+      const cipherTextArea = document.getElementById("cipherText");
+      const encryptBtn = document.getElementById("encryptBtn");
+      const decryptBtn = document.getElementById("decryptBtn");
+      const clearBtn = document.getElementById("clearBtn");
+      const copyBtn = document.getElementById("copyBtn");
+      const statusEl = document.getElementById("status");
+
+      function setStatus(message, type) {
+        statusEl.textContent = message || "";
+        statusEl.className = "status" + (type ? " " + type : "");
       }
-    });
 
-    // Estado inicial
-    setStatus("Todo listo. Usa la misma clave en ambos navegadores para probarlo.");
+      encryptBtn.addEventListener("click", async () => {
+        const pwd = passwordInput.value;
+        const plain = plainTextArea.value;
+        if (!pwd) {
+          setStatus("Escribe una contraseña para cifrar.", "error");
+          passwordInput.focus();
+          return;
+        }
+        if (!plain.trim()) {
+          setStatus("Escribe un mensaje en claro para cifrar.", "error");
+          plainTextArea.focus();
+          return;
+        }
+        try {
+          const cipher = await encryptText(plain, pwd);
+          cipherTextArea.value = cipher;
+          setStatus("Mensaje cifrado. Copia el texto y compártelo.", "ok");
+        } catch (err) {
+          console.error(err);
+          setStatus("Error al cifrar el mensaje.", "error");
+        }
+      });
+
+      decryptBtn.addEventListener("click", async () => {
+        const pwd = passwordInput.value;
+        const cipher = cipherTextArea.value;
+        if (!pwd) {
+          setStatus("Escribe la contraseña para descifrar.", "error");
+          passwordInput.focus();
+          return;
+        }
+        if (!cipher.trim()) {
+          setStatus("Pega un mensaje cifrado para descifrar.", "error");
+          cipherTextArea.focus();
+          return;
+        }
+        try {
+          const plain = await decryptText(cipher, pwd);
+          plainTextArea.value = plain;
+          setStatus("Mensaje descifrado.", "ok");
+        } catch (err) {
+          console.error(err);
+          setStatus("No se ha podido descifrar. ¿Contraseña correcta?", "error");
+        }
+      });
+
+      clearBtn.addEventListener("click", () => {
+        plainTextArea.value = "";
+        cipherTextArea.value = "";
+        setStatus("", "");
+      });
+
+      copyBtn.addEventListener("click", async () => {
+        const cipher = cipherTextArea.value;
+        if (!cipher.trim()) {
+          setStatus("No hay nada que copiar.", "error");
+          return;
+        }
+        try {
+          await navigator.clipboard.writeText(cipher);
+          setStatus("Mensaje cifrado copiado al portapapeles.", "ok");
+        } catch (err) {
+          console.error(err);
+          setStatus("No se ha podido copiar. Copia manualmente.", "error");
+        }
+      });
+
+      // ID y estado de chats
+      const myId = getMyId();
+      document.getElementById("myIdValue").textContent = myId;
+
+      const copyIdBtn = document.getElementById("copyIdBtn");
+      copyIdBtn.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(getMyId());
+          alert("ID copiado al portapapeles.");
+        } catch (e) {
+          console.error(e);
+          alert("No se ha podido copiar el ID. Cópialo a mano.");
+        }
+      });
+
+      // Eventos de chats
+      const newChatForm = document.getElementById("newChatForm");
+      const sharedUnlockBtn = document.getElementById("sharedUnlockBtn");
+      const sharedLockBtn = document.getElementById("sharedLockBtn");
+      const privateLockBtn = document.getElementById("privateLockBtn");
+      const privateUnlockBtn = document.getElementById("privateUnlockBtn");
+      const sendMessageBtn = document.getElementById("sendMessageBtn");
+      const chatMessageInput = document.getElementById("chatMessageInput");
+      const addIncomingBtn = document.getElementById("addIncomingBtn");
+
+      loadState();
+      renderChatList();
+      renderChatMessages().catch(console.error);
+
+      newChatForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = document.getElementById("contactName").value.trim();
+        const id = document.getElementById("contactId").value.trim();
+        if (!id) {
+          alert("Escribe el ID de la otra persona.");
+          return;
+        }
+        const chat = {
+          id: Date.now().toString() + Math.random().toString(16).slice(2),
+          contactName: name || "",
+          contactId: id,
+          doubleLocked: false,
+          messages: []
+        };
+        if (!Array.isArray(appState.chats)) appState.chats = [];
+        appState.chats.push(chat);
+        saveState();
+        newChatForm.reset();
+        currentSharedPassword = "";
+        document.getElementById("chatPassword").value = "";
+        selectChat(chat.id);
+      });
+
+      sharedUnlockBtn.addEventListener("click", () => {
+        sharedUnlock().catch(console.error);
+      });
+
+      sharedLockBtn.addEventListener("click", () => {
+        sharedLock();
+      });
+
+      privateLockBtn.addEventListener("click", () => {
+        privateLockCurrentChat().catch(console.error);
+      });
+
+      privateUnlockBtn.addEventListener("click", () => {
+        privateUnlockCurrentChat().catch(console.error);
+      });
+
+      sendMessageBtn.addEventListener("click", () => {
+        sendCurrentMessage().catch(console.error);
+      });
+
+      chatMessageInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+          e.preventDefault();
+          sendCurrentMessage().catch(console.error);
+        }
+      });
+
+      addIncomingBtn.addEventListener("click", () => {
+        addIncomingCipher().catch(console.error);
+      });
+    });
   </script>
 </body>
 </html>
