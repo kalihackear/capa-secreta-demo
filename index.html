@@ -3,36 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <title>CryptoChat</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <style>
     :root {
-      color-scheme: dark;
-      --bg: radial-gradient(circle at top, #020617 0, #020617 45%, #000 100%);
-      --layer: #020617;
-      --card: #050814;
-      --card-soft: #111827;
-      --nav-grad: linear-gradient(135deg, rgba(15, 23, 42, 0.72), rgba(15, 23, 42, 0.32));
-      --top-blur-bg: rgba(15, 23, 42, 0.7);
-      --accent: #2294ff;
-      --accent-soft: rgba(56, 189, 248, 0.2);
-      --accent-strong: #22d3ee;
-      --border: #1f2937;
-      --text: #f9fafb;
-      --muted: #9ca3af;
-      --danger: #f97373;
-      --success: #4ade80;
-      --shadow-strong: 0 18px 40px rgba(0, 0, 0, 0.9);
-      --shadow-soft: 0 10px 22px rgba(0, 0, 0, 0.7);
-    }
-
-    body.light {
       color-scheme: light;
       --bg: radial-gradient(circle at top, #e5e7eb 0, #f9fafb 45%, #e5e7eb 100%);
       --layer: #f9fafb;
       --card: #ffffff;
       --card-soft: #f3f4f6;
-      --nav-grad: linear-gradient(135deg, rgba(248, 250, 252, 0.82), rgba(226, 232, 240, 0.45));
-      --top-blur-bg: rgba(248, 250, 252, 0.82);
+      --nav-grad: linear-gradient(135deg, rgba(248, 250, 252, 0.82), rgba(226, 232, 240, 0.5));
+      --top-blur-bg: rgba(248, 250, 252, 0.86);
       --accent: #1d9bf0;
       --accent-soft: rgba(37, 99, 235, 0.12);
       --accent-strong: #2563eb;
@@ -45,10 +25,27 @@
       --shadow-soft: 0 8px 18px rgba(15, 23, 42, 0.14);
     }
 
-    * {
-      box-sizing: border-box;
+    body.dark {
+      color-scheme: dark;
+      --bg: radial-gradient(circle at top, #020617 0, #020617 45%, #000 100%);
+      --layer: #020617;
+      --card: #050814;
+      --card-soft: #111827;
+      --nav-grad: linear-gradient(135deg, rgba(15, 23, 42, 0.55), rgba(15, 23, 42, 0.18));
+      --top-blur-bg: rgba(15, 23, 42, 0.72);
+      --accent: #2294ff;
+      --accent-soft: rgba(56, 189, 248, 0.16);
+      --accent-strong: #22d3ee;
+      --border: #1f2937;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --danger: #f97373;
+      --success: #4ade80;
+      --shadow-strong: 0 18px 40px rgba(0, 0, 0, 0.9);
+      --shadow-soft: 0 10px 22px rgba(0, 0, 0, 0.7);
     }
 
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -57,11 +54,10 @@
       min-height: 100vh;
       display: flex;
       justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
-
-    .hidden {
-      display: none !important;
-    }
+    .hidden { display: none !important; }
 
     .app {
       max-width: 640px;
@@ -72,9 +68,9 @@
       flex-direction: column;
       position: relative;
     }
+    .app.chat-open { padding-bottom: 16px; }
 
-    /* Barra superior */
-
+    /* Barra superior translúcida */
     .top-bar {
       padding: 4px 0 4px;
       display: flex;
@@ -84,19 +80,18 @@
       top: 0;
       z-index: 5;
     }
-
     .top-bar-inner {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
-      padding: 3px 10px;
+      padding: 4px 14px;
       border-radius: 999px;
       background: var(--top-blur-bg);
-      border: 1px solid rgba(148, 163, 184, 0.4);
+      border: 1px solid rgba(148, 163, 184, 0.45);
       box-shadow: var(--shadow-soft);
-      backdrop-filter: blur(14px);
+      backdrop-filter: blur(16px) saturate(140%);
     }
-
     .top-pill {
       font-size: 0.75rem;
       letter-spacing: 0.08em;
@@ -107,815 +102,146 @@
       color: var(--accent-strong);
     }
 
-    .top-theme-btn {
-      border: none;
-      background: transparent;
-      color: var(--muted);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      padding: 2px;
+    /* Vistas genéricas */
+    .app-main { flex: 1; display: flex; flex-direction: column; gap: 10px; margin-top: 4px; min-height: 0; }
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
+    .view-header { display: flex; align-items: center; justify-content: space-between; padding: 4px 2px 6px; }
+    .view-title { font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; gap: 2px; min-height: 1.2em; }
+    .view-left, .view-right { display: flex; align-items: center; gap: 6px; min-width: 60px; }
+    .text-link-btn { border: none; background: transparent; color: var(--accent); font-size: 0.9rem; padding: 2px 6px; cursor: pointer; }
+    .icon-button { border: none; border-radius: 999px; background: var(--card-soft); color: var(--text); padding: 5px 7px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-soft); }
+    .icon-button svg { width: 18px; height: 18px; }
+    .icon-button.locked { color: var(--accent-strong); }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 14px; border-radius: 999px; border: 1px solid transparent; font-size: 0.9rem; cursor: pointer; background: linear-gradient(135deg, var(--accent), var(--accent-strong)); color: #fff; box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4); transition: transform 0.08s ease, box-shadow 0.08s ease; white-space: nowrap; }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 14px 26px rgba(30, 64, 175, 0.6); }
+    .btn.secondary { background: var(--card-soft); border-color: var(--border); color: var(--text); box-shadow: none; }
+    .btn.small { font-size: 0.8rem; padding: 6px 10px; }
+    .buttons-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 4px; }
+
+    .card { background: var(--card); border-radius: 16px; border: 1px solid var(--border); padding: 10px 12px; box-shadow: var(--shadow-strong); margin-bottom: 8px; }
+    .field { margin-bottom: 10px; }
+    .field label { display: block; font-size: 0.85rem; margin-bottom: 4px; }
+    input[type="text"], input[type="password"], textarea {
+      width: 100%; border-radius: 10px; border: 1px solid var(--border); background: var(--card-soft); color: var(--text);
+      padding: 8px 10px; font-size: 0.9rem; resize: vertical; min-height: 36px;
     }
+    input::placeholder, textarea::placeholder { color: var(--muted); }
+    textarea { min-height: 70px; line-height: 1.35; }
 
-    .top-theme-btn svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    /* Vistas */
-
-    .app-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 4px;
-    }
-
-    .view-panel {
-      display: none;
-    }
-
-    .view-panel.active {
-      display: block;
-    }
-
-    .view-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 4px 2px 6px;
-    }
-
-    .view-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      min-height: 1.2em;
-    }
-
-    .view-left,
-    .view-right {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      min-width: 60px;
-    }
-
-    .view-left {
-      justify-content: flex-start;
-    }
-
-    .view-right {
-      justify-content: flex-end;
-    }
-
-    .chat-detail-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 2px;
-    }
-
-    .chat-header-title {
-      font-size: 0.95rem;
-      font-weight: 500;
-    }
-
-    .chat-header-sub {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .text-link-btn {
-      border: none;
-      background: transparent;
-      color: var(--accent);
-      font-size: 0.9rem;
-      padding: 2px 6px;
-      cursor: pointer;
-    }
-
-    .icon-button {
-      border: none;
-      border-radius: 999px;
-      background: var(--card-soft);
-      color: var(--text);
-      padding: 5px 7px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .icon-button svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    .icon-button.locked {
-      color: var(--accent-strong);
-    }
-
-    /* Inputs base */
-
-    .card {
-      background: var(--card);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      padding: 10px 12px;
-      box-shadow: var(--shadow-strong);
-      margin-bottom: 8px;
-    }
-
-    .field {
-      margin-bottom: 10px;
-    }
-
-    .field label {
-      display: block;
-      font-size: 0.85rem;
-      margin-bottom: 4px;
-    }
-
-    input[type="text"],
-    input[type="password"],
-    textarea {
-      width: 100%;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--card-soft);
-      color: var(--text);
-      padding: 8px 10px;
-      font-size: 0.9rem;
-      resize: vertical;
-      min-height: 36px;
-    }
-
-    input::placeholder,
-    textarea::placeholder {
-      color: var(--muted);
-    }
-
-    textarea {
-      min-height: 70px;
-      line-height: 1.35;
-    }
-
-    button {
-      font-family: inherit;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      border: 1px solid transparent;
-      font-size: 0.9rem;
-      cursor: pointer;
-      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-      color: white;
-      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4);
-      transition: transform 0.08s ease, box-shadow 0.08s ease;
-      white-space: nowrap;
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 26px rgba(30, 64, 175, 0.6);
-    }
-
-    .btn.secondary {
-      background: var(--card-soft);
-      border-color: var(--border);
-      color: var(--text);
-      box-shadow: none;
-    }
-
-    .btn.secondary:hover {
-      filter: brightness(1.06);
-    }
-
-    .btn.small {
-      font-size: 0.8rem;
-      padding: 6px 10px;
-    }
-
-    .buttons-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 6px 0 4px;
-    }
-
-    .status {
-      margin-top: 4px;
-      font-size: 0.85rem;
-      color: var(--muted);
-      min-height: 1.2em;
-    }
-
-    .status.ok {
-      color: var(--success);
-    }
-
-    .status.error {
-      color: var(--danger);
-    }
-
-    .hint {
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin: 3px 0 0;
-    }
-
-    .empty {
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-
-    /* Barra inferior tipo app de chat */
-
-    .bottom-nav {
-      position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: 28px;
-      width: 100%;
-      max-width: 640px;
-      z-index: 20;
-      pointer-events: none;
-    }
-
+    /* Bottom nav efecto cristal */
+    .bottom-nav { position: fixed; left: 50%; transform: translateX(-50%); bottom: 28px; width: 100%; max-width: 640px; z-index: 20; pointer-events: none; }
     .bottom-nav-inner {
-      pointer-events: auto;
-      margin: 0 14px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: var(--nav-grad);
-      backdrop-filter: blur(26px);
-      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.6);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 4px;
+      pointer-events: auto; margin: 0 14px; padding: 6px 14px; border-radius: 999px;
+      background: var(--nav-grad); backdrop-filter: blur(24px) saturate(150%);
+      border: 1px solid rgba(255,255,255,0.18); box-shadow: 0 18px 42px rgba(15,23,42,0.7);
+      display: flex; align-items: center; justify-content: space-between; gap: 6px;
     }
-
-    body.light .bottom-nav-inner {
-      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.26);
-    }
-
-    .nav-item {
-      flex: 1;
-      border: none;
-      border-radius: 999px;
-      background: transparent;
-      color: var(--muted);
-      font-size: 0.75rem;
-      padding: 6px 4px 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 2px;
-      cursor: pointer;
-      transition: background 0.12s ease, color 0.12s ease, transform 0.08s ease;
-    }
-
-    .nav-item svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    .nav-item.active {
-      background: rgba(15, 23, 42, 0.6);
-      color: #f9fafb;
-      transform: translateY(-1px);
-    }
-
-    body.light .nav-item.active {
-      background: rgba(226, 232, 240, 0.96);
-      color: #111827;
-    }
-
-    .nav-item:not(.active):hover {
-      background: rgba(15, 23, 42, 0.3);
-      color: var(--text);
-    }
-
-    body.light .nav-item:not(.active):hover {
-      background: rgba(229, 231, 235, 0.7);
-    }
-
-    .nav-label {
-      line-height: 1;
-    }
-
-    .nav-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    body.dark .bottom-nav-inner { box-shadow: 0 12px 30px rgba(15,23,42,0.2); border-color: rgba(148,163,184,0.7); }
+    .nav-item { flex: 1; border: none; border-radius: 999px; background: transparent; color: var(--muted); font-size: 0.75rem; padding: 6px 4px 4px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 2px; cursor: pointer; transition: background 0.12s ease, color 0.12s ease, transform 0.08s ease; }
+    .nav-item svg { width: 18px; height: 18px; }
+    .nav-item.active { background: rgba(255,255,255,0.9); color: #111827; transform: translateY(-1px); }
+    body.dark .nav-item.active { background: rgba(248,250,252,0.06); color: #f9fafb; }
+    .nav-item:not(.active):hover { background: rgba(255,255,255,0.5); color: var(--text); }
+    body.dark .nav-item:not(.active):hover { background: rgba(15,23,42,0.25); }
 
     /* Lista de chats */
+    .chat-list-panel { background: var(--card); border-radius: 16px; border: 1px solid var(--border); padding: 0; box-shadow: var(--shadow-strong); max-height: 460px; overflow: hidden; display: flex; flex-direction: column; }
+    .chat-search-wrapper { padding: 6px 8px 4px; background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 2; }
+    .chat-search-input { width: 100%; border-radius: 999px; border: 1px solid var(--border); background: var(--card-soft); color: var(--text); padding: 6px 10px; font-size: 0.85rem; }
+    .chat-list { padding: 4px 4px 6px; display: flex; flex-direction: column; gap: 3px; overflow-y: auto; flex: 1; }
+    .chat-row { border: none; background: transparent; padding: 6px 8px; width: 100%; display: flex; align-items: center; gap: 10px; cursor: pointer; border-radius: 12px; transition: background 0.08s ease; }
+    .chat-row:hover { background: rgba(229,231,235,0.9); }
+    body.dark .chat-row:hover { background: rgba(31,41,55,0.7); }
+    .chat-row.active { background: var(--accent-soft); }
+    .chat-select-circle { width: 20px; height: 20px; border-radius: 999px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .chat-select-circle-inner { width: 10px; height: 10px; border-radius: 999px; background: transparent; }
+    .chat-select-circle.selected { border-color: var(--accent-strong); background: rgba(37,99,235,0.18); }
+    .chat-select-circle.selected .chat-select-circle-inner { background: var(--accent-strong); }
+    .chat-avatar { width: 38px; height: 38px; border-radius: 999px; background: radial-gradient(circle at top, #4f46e5, #0ea5e9); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.95rem; color: #f9fafb; flex-shrink: 0; }
+    body.dark .chat-avatar { background: radial-gradient(circle at top, #4f46e5, #1f2937); }
+    .chat-row-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .chat-row-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .chat-row-name { font-size: 0.9rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .chat-row-time { font-size: 0.75rem; color: var(--muted); flex-shrink: 0; }
+    .chat-row-bottom { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .chat-row-preview { font-size: 0.8rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .chat-row-right { display: flex; align-items: center; gap: 6px; }
+    .chat-row-badge { font-size: 0.7rem; padding: 1px 6px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); flex-shrink: 0; }
+    .lock-toggle-btn { border: none; background: transparent; color: var(--muted); padding: 2px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+    .lock-toggle-btn svg { width: 16px; height: 16px; }
+    .lock-toggle-btn.active { color: var(--accent-strong); }
 
-    .chat-list-panel {
-      background: var(--card);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      padding: 4px 4px 6px;
-      box-shadow: var(--shadow-strong);
-    }
+    /* Chat detalle estilo mensajería */
+    .chat-main { background: var(--card); border-radius: 16px; border: 1px solid var(--border); padding: 8px 6px 8px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--shadow-strong); flex: 1; min-height: 0; }
+    .chat-messages { flex: 1; min-height: 0; overflow-y: auto; border-radius: 14px; padding: 6px 6px 4px; background: var(--layer); border: none; font-size: 0.9rem; }
+    body.dark .chat-messages { background: #0b1220; }
+    .message { margin-bottom: 6px; max-width: 80%; padding: 7px 10px; border-radius: 18px; cursor: pointer; }
+    .message.me { margin-left: auto; background: #1d9bf0; color: #f9fafb; border-bottom-right-radius: 4px; }
+    .message.other { margin-right: auto; background: #e5e7eb; color: #111827; border-bottom-left-radius: 4px; }
+    body.dark .message.other { background: #374151; color: #f9fafb; }
+    .message-meta { font-size: 0.7rem; opacity: 0.9; margin-top: 2px; text-align: right; }
 
-    .chat-list {
-      max-height: 460px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .chat-row {
-      border: none;
-      background: transparent;
-      padding: 6px 8px;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      border-radius: 12px;
-      transition: background 0.08s ease;
-    }
-
-    .chat-row:hover {
-      background: rgba(31, 41, 55, 0.7);
-    }
-
-    body.light .chat-row:hover {
-      background: rgba(229, 231, 235, 0.9);
-    }
-
-    .chat-row.active {
-      background: var(--accent-soft);
-    }
-
-    .chat-avatar {
-      width: 38px;
-      height: 38px;
-      border-radius: 999px;
-      background: radial-gradient(circle at top, #4f46e5, #1f2937);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 0.95rem;
-      color: #f9fafb;
-      flex-shrink: 0;
-    }
-
-    body.light .chat-avatar {
-      background: radial-gradient(circle at top, #4f46e5, #0ea5e9);
-    }
-
-    .chat-row-body {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .chat-row-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-    }
-
-    .chat-row-name {
-      font-size: 0.9rem;
-      font-weight: 500;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .chat-row-time {
-      font-size: 0.75rem;
-      color: var(--muted);
-      flex-shrink: 0;
-    }
-
-    .chat-row-bottom {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-    }
-
-    .chat-row-preview {
-      font-size: 0.8rem;
-      color: var(--muted);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .chat-row-badge {
-      font-size: 0.7rem;
-      padding: 1px 6px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      flex-shrink: 0;
-    }
-
-    .chat-row-right {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .lock-toggle-btn {
-      border: none;
-      background: transparent;
-      color: var(--muted);
-      padding: 2px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-
-    .lock-toggle-btn svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    .lock-toggle-btn:hover {
-      color: var(--text);
-    }
-
-    .lock-toggle-btn.active {
-      color: var(--accent-strong);
-    }
-
-    /* Detalle de chat */
-
-    .chat-main {
-      background: var(--card);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      padding: 8px 8px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: var(--shadow-strong);
-      min-height: 320px;
-    }
-
-    .chat-messages {
-      flex: 1;
-      min-height: 140px;
-      max-height: 260px;
-      overflow-y: auto;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      padding: 8px;
-      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.98), rgba(3, 7, 18, 1));
-      font-size: 0.9rem;
-    }
-
-    body.light .chat-messages {
-      background: #f9fafb;
-    }
-
-    .message {
-      margin-bottom: 8px;
-      max-width: 80%;
-      padding: 6px 8px;
-      border-radius: 14px;
-      cursor: pointer;
-    }
-
-    .message.me {
-      margin-left: auto;
-      background: rgba(34, 148, 255, 0.95);
-      color: #f9fafb;
-    }
-
-    .message.other {
-      margin-right: auto;
-      background: rgba(31, 41, 55, 0.95);
-      color: #f9fafb;
-    }
-
-    body.light .message.me {
-      background: #1d9bf0;
-    }
-
-    body.light .message.other {
-      background: #2563eb;
-    }
-
-    .message-text {
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-
-    .message-meta {
-      font-size: 0.7rem;
-      opacity: 0.9;
-      margin-top: 2px;
-      text-align: right;
-    }
-
-    .chat-input {
-      margin-top: 2px;
-    }
-
-    .chat-input .hint {
-      margin-top: 4px;
-    }
-
-    .chat-input-bar {
-      display: flex;
-      align-items: flex-end;
-      gap: 8px;
-      padding: 6px 8px;
-      border-radius: 999px;
-      background: var(--card-soft);
-      border: 1px solid var(--border);
-    }
-
-    .chat-input-bar textarea {
-      flex: 1;
-      border: none;
-      background: transparent;
-      padding: 6px 8px;
-      resize: none;
-      min-height: 34px;
-      max-height: 90px;
-    }
-
-    .chat-input-bar textarea:focus {
-      outline: none;
-    }
-
-    .chat-send-btn {
-      border: none;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-      color: #fff;
-      padding: 8px 10px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.45);
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-
-    .chat-send-btn svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    .chat-send-btn:disabled {
-      opacity: 0.55;
-      box-shadow: none;
-      cursor: default;
-    }
-
-    /* Ajustes */
-
-    .settings-group {
-      background: var(--card);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-strong);
-      overflow: hidden;
-      margin-bottom: 10px;
-    }
-
-    .settings-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-      cursor: default;
-    }
-
-    .settings-row:last-child {
-      border-bottom: none;
-    }
-
-    .settings-icon {
-      width: 30px;
-      height: 30px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      flex-shrink: 0;
-      color: #f9fafb;
-    }
-
-    .settings-icon.blue { background: #1d4ed8; }
-    .settings-icon.green { background: #15803d; }
-    .settings-icon.orange { background: #ea580c; }
-    .settings-icon.gray { background: #4b5563; }
-
-    body.light .settings-icon.blue { background: #3b82f6; }
-    body.light .settings-icon.green { background: #22c55e; }
-    body.light .settings-icon.orange { background: #f97316; }
-    body.light .settings-icon.gray { background: #6b7280; }
-
-    .settings-body {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .settings-title {
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-
-    .settings-sub {
-      font-size: 0.8rem;
-      color: var(--muted);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .settings-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 4px;
-    }
-
-    .settings-actions .btn {
-      font-size: 0.75rem;
-      padding: 5px 9px;
-    }
-
-    .settings-status {
-      padding: 6px 10px 8px;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
+    .chat-input { margin-top: 2px; }
+    .chat-input-bar { display: flex; align-items: flex-end; gap: 8px; padding: 6px 8px; border-radius: 999px; background: var(--card-soft); border: 1px solid var(--border); }
+    .chat-input-bar textarea { flex: 1; border: none; background: transparent; padding: 4px 6px; resize: none; min-height: 32px; max-height: 90px; font-size: 0.9rem; }
+    .chat-input-bar textarea:focus { outline: none; }
+    .chat-send-btn { border: none; border-radius: 999px; background: linear-gradient(135deg, var(--accent), var(--accent-strong)); color: #fff; padding: 7px 9px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 8px 18px rgba(37, 99, 235, 0.45); cursor: pointer; flex-shrink: 0; }
+    .chat-send-btn svg { width: 18px; height: 18px; }
+    .chat-send-btn:disabled { opacity: .5; box-shadow: none; cursor: default; }
 
     /* Manual */
+    .manual-card { margin-top: 4px; }
+    .manual-divider { height: 1px; width: 100%; background: var(--border); opacity: .7; margin: 10px 0; }
+    .password-wrapper { position: relative; display: flex; align-items: center; }
+    .password-wrapper input { padding-right: 34px; }
+    .password-toggle-btn { position: absolute; right: 8px; border: none; background: transparent; cursor: pointer; color: var(--muted); padding: 2px; display: inline-flex; align-items: center; justify-content: center; }
+    .password-toggle-btn svg { width: 16px; height: 16px; }
 
-    .manual-card {
-      margin-top: 4px;
-    }
+    /* Ajustes */
+    .settings-group { background: var(--card); border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-strong); overflow: hidden; margin-bottom: 10px; }
+    .settings-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid rgba(148,163,184,0.2); }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-icon { width: 32px; height: 32px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; color: #f9fafb; }
+    .settings-icon svg { width: 18px; height: 18px; }
+    .settings-icon.blue { background: #3b82f6; }
+    .settings-icon.green { background: #22c55e; }
+    .settings-icon.orange { background: #f97316; }
+    .settings-icon.gray { background: #6b7280; }
+    .settings-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .settings-title { font-size: 0.9rem; font-weight: 500; }
+    .settings-sub { font-size: 0.8rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .settings-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .settings-actions .btn { font-size: 0.75rem; padding: 5px 9px; }
+    .settings-status { padding: 6px 10px 8px; font-size: 0.8rem; color: var(--muted); }
 
-    .manual-divider {
-      height: 1px;
-      width: 100%;
-      background: var(--border);
-      opacity: 0.7;
-      margin: 10px 0;
-    }
-
-    /* Modal */
-
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 30;
-      backdrop-filter: blur(6px);
-    }
-
-    .modal-card {
-      max-width: 340px;
-      width: calc(100% - 40px);
-      background: var(--card);
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-strong);
-      padding: 12px 14px 10px;
-    }
-
-    .modal-title {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .modal-message {
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-bottom: 8px;
-      white-space: pre-wrap;
-    }
-
-    .modal-input-wrapper {
-      margin-bottom: 8px;
-    }
-
-    .modal-input-wrapper input {
-      width: 100%;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--card-soft);
-      padding: 7px 9px;
-      color: var(--text);
-      font-size: 0.9rem;
-    }
-
-    .modal-key-wrapper {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
+    /* Modal mejorado: soporta varios bloques copiables y choices */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 30; backdrop-filter: blur(6px); }
+    .modal-card { max-width: 380px; width: calc(100% - 40px); background: var(--card); border-radius: 18px; border: 1px solid var(--border); box-shadow: var(--shadow-strong); padding: 12px 14px 10px; }
+    .modal-title { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+    .modal-message { font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere; }
+    .modal-keys { display: flex; flex-direction: column; gap: 8px; margin-bottom: 6px; }
+    .modal-kv-label { font-size: .75rem; color: var(--muted); margin: 2px 0 4px; }
+    .modal-key-wrapper { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .modal-key-text {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.8rem;
-      word-break: break-all;
+      font-size: 0.8rem; word-break: break-all; overflow-wrap: anywhere;
+      padding: 8px 10px; background: var(--card-soft); border: 1px solid var(--border); border-radius: 10px; flex: 1; max-height: 120px; overflow: auto;
     }
-
-    .modal-buttons {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    .modal-buttons .btn {
-      font-size: 0.8rem;
-      padding: 6px 11px;
-    }
+    .modal-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+    .modal-buttons .btn { font-size: 0.8rem; padding: 6px 11px; }
+    .modal-choice-list { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
 
     /* Toast */
-
-    .toast {
-      position: fixed;
-      bottom: 96px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 6px 12px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.96);
-      border: 1px solid var(--border);
-      color: #f9fafb;
-      font-size: 0.8rem;
-      box-shadow: var(--shadow-soft);
-      z-index: 25;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-    }
-
-    .toast.visible {
-      opacity: 1;
-      transform: translateX(-50%) translateY(-4px);
-    }
-
-    .toast.ok {
-      border-color: var(--success);
-    }
-
-    .toast.error {
-      border-color: var(--danger);
-    }
-
-    body.light .toast {
-      background: rgba(15, 23, 42, 0.96);
-      color: #f9fafb;
-    }
+    .toast { position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%); padding: 6px 12px; border-radius: 999px; background: rgba(15, 23, 42, 0.96); border: 1px solid var(--border); color: #f9fafb; font-size: 0.8rem; box-shadow: var(--shadow-soft); z-index: 25; opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; }
+    .toast.visible { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+    .toast.ok { border-color: var(--success); }
+    .toast.error { border-color: var(--danger); }
+    body.dark .toast { background: rgba(15,23,42,0.96); color: #f9fafb; }
 
     @media (max-width: 600px) {
-      .chat-list {
-        max-height: calc(100vh - 210px);
-      }
-
-      .chat-messages {
-        max-height: calc(100vh - 250px);
-      }
+      .chat-list-panel { max-height: calc(100vh - 210px); }
     }
   </style>
 </head>
@@ -924,40 +250,37 @@
     <header class="top-bar">
       <div class="top-bar-inner">
         <div class="top-pill">CRYPTOCHAT</div>
-        <button class="top-theme-btn" id="themeToggleBtn" type="button" aria-label="Cambiar tema">
-          <svg viewBox="0 0 24 24" fill="none">
-            <path id="themeIconPath" d="M12 4a1 1 0 0 1 .92.61A5.5 5.5 0 1 1 7.39 13 5.48 5.48 0 0 1 6 9.5 1 1 0 0 1 7.2 8.6 3.5 3.5 0 1 0 11.4 4.2 1 1 0 0 1 12 4z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
       </div>
     </header>
 
     <main class="app-main">
       <!-- CHATS -->
       <section id="view-chats" class="view-panel active">
-        <!-- Lista de chats -->
         <div id="chatsListContainer">
           <div class="view-header">
             <div class="view-left">
               <button class="text-link-btn" type="button" id="chatsEditBtn">Editar</button>
             </div>
-            <div class="view-title">Chats</div>
+            <div class="view-title" id="chatsTitleLabel">Chats</div>
             <div class="view-right">
               <button class="icon-button" type="button" id="chatsSearchBtn" aria-label="Buscar">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <circle cx="11" cy="11" r="5.5" stroke="currentColor" stroke-width="1.6"/>
-                  <path d="M15.5 15.5 19 19" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="5.5" stroke="currentColor" stroke-width="1.6"/><path d="M15.5 15.5 19 19" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              </button>
+              <button class="icon-button" type="button" id="joinChatBtn" aria-label="Unirse a chat">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M9 8a3 3 0 0 1 3-3h2a3 3 0 1 1 0 6h-1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 16a3 3 0 0 1-3 3H10a3 3 0 1 1 0-6h1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
               <button class="icon-button" type="button" id="newChatBtn" aria-label="Nuevo chat">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
+              <button class="text-link-btn hidden" type="button" id="chatsDeleteSelectedBtn">Eliminar</button>
+              <button class="text-link-btn hidden" type="button" id="chatsEncryptSelectedBtn">Bloquear</button>
             </div>
           </div>
 
           <div class="chat-list-panel">
+            <div class="chat-search-wrapper">
+              <input id="chatSearchInput" class="chat-search-input" type="text" placeholder="Buscar por nombre de chat" />
+            </div>
             <div id="chatList" class="chat-list"></div>
           </div>
         </div>
@@ -967,21 +290,15 @@
           <div class="view-header">
             <div class="view-left">
               <button class="icon-button" type="button" id="chatBackBtn" aria-label="Volver">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path d="M15 5 9 12l6 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none"><path d="M15 5 9 12l6 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
             </div>
-            <div class="view-title chat-detail-header">
-              <div class="chat-header-title" id="chatTitle">Chat</div>
-              <div class="chat-header-sub" id="chatSubtitle"></div>
+            <div class="view-title">
+              <div id="chatTitle">Chat</div>
             </div>
             <div class="view-right">
-              <button class="icon-button" type="button" id="chatLockBtn" aria-label="Cifrar mensajes">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path d="M8 10V8a4 4 0 1 1 8 0v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                  <rect x="6" y="10" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/>
-                </svg>
+              <button class="icon-button" type="button" id="chatMenuBtn" aria-label="Cifrado privado">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M8 10V8a4 4 0 1 1 8 0v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><rect x="6" y="10" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/></svg>
               </button>
             </div>
           </div>
@@ -994,15 +311,11 @@
             <div class="chat-input">
               <div class="chat-input-bar">
                 <textarea id="chatMessageInput" rows="1" placeholder="Escribe un mensaje"></textarea>
-                <button type="button" class="chat-send-btn" id="sendMessageBtn" aria-label="Enviar mensaje">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M5 12 19 5l-3 14-4-5-4 3z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
+                <button type="button" class="chat-send-btn" id="sendMessageBtn" aria-label="Enviar">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M5 12 19 5l-3 14-4-5-4 3z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
               </div>
-              <p class="hint">
-                Tus mensajes se cifran con la clave del chat. El candado añade tu clave privada.
-              </p>
+              <p class="hint" id="chatSubtitle"></p>
             </div>
           </div>
         </div>
@@ -1010,16 +323,16 @@
 
       <!-- MANUAL -->
       <section id="view-manual" class="view-panel">
-        <div class="view-header">
-          <div class="view-left"></div>
-          <div class="view-title">Cifrado manual</div>
-          <div class="view-right"></div>
-        </div>
-
+        <div class="view-header"><div class="view-left"></div><div class="view-title">Cifrado manual</div><div class="view-right"></div></div>
         <div class="card manual-card">
           <div class="field">
             <label for="manualPassword">Contraseña</label>
-            <input id="manualPassword" type="password" autocomplete="off" />
+            <div class="password-wrapper">
+              <input id="manualPassword" type="password" autocomplete="off" />
+              <button type="button" class="password-toggle-btn" id="manualPasswordToggle" aria-label="Mostrar u ocultar contraseña">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M3 12s2.5-5 9-5 9 5 9 5-2.5 5-9 5-9-5-9-5z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.6"/></svg>
+              </button>
+            </div>
           </div>
 
           <div class="field">
@@ -1053,16 +366,14 @@
 
       <!-- AJUSTES -->
       <section id="view-settings" class="view-panel">
-        <div class="view-header">
-          <div class="view-left"></div>
-          <div class="view-title">Ajustes</div>
-          <div class="view-right"></div>
-        </div>
+        <div class="view-header"><div class="view-left"></div><div class="view-title">Ajustes</div><div class="view-right"></div></div>
 
         <!-- Apariencia -->
         <div class="settings-group">
           <div class="settings-row">
-            <div class="settings-icon blue"></div>
+            <div class="settings-icon blue">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 4a1 1 0 0 1 .92.61A5.5 5.5 0 1 1 7.39 13 5.48 5.48 0 0 1 6 9.5 1 1 0 0 1 7.2 8.6 3.5 3.5 0 1 0 11.4 4.2 1 1 0 0 1 12 4z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
             <div class="settings-body">
               <div class="settings-title">Apariencia</div>
               <div class="settings-sub">Modo claro u oscuro</div>
@@ -1074,27 +385,33 @@
           </div>
         </div>
 
-        <!-- Gestión de claves compartidas -->
+        <!-- Mi ID -->
         <div class="settings-group">
           <div class="settings-row">
-            <div class="settings-icon green"></div>
+            <div class="settings-icon gray">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M6 18c1.2-2.2 3.2-3.5 6-3.5s4.8 1.3 6 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            </div>
             <div class="settings-body">
-              <div class="settings-title">Claves compartidas</div>
-              <div class="settings-sub">Lista de chats con sus claves cifradas</div>
+              <div class="settings-title">Mi ID</div>
+              <div class="settings-sub" id="userIdValue">Pendiente</div>
+              <div class="settings-actions">
+                <button type="button" class="btn secondary" id="copyUserIdBtn">Copiar ID</button>
+              </div>
             </div>
           </div>
-          <div id="keysList" class="settings-status"></div>
         </div>
 
         <!-- Clave privada -->
         <div class="settings-group">
           <div class="settings-row">
-            <div class="settings-icon orange"></div>
+            <div class="settings-icon orange">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M8 10V8a4 4 0 1 1 8 0v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><rect x="6" y="10" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/></svg>
+            </div>
             <div class="settings-body">
               <div class="settings-title">Clave privada</div>
               <div class="settings-sub" id="privateKeyStateText">Sin clave privada</div>
               <div class="settings-actions">
-                <button type="button" class="btn secondary" id="privateSaveBtn">Definir / guardar</button>
+                <button type="button" class="btn secondary" id="privateSaveBtn">Definir / cambiar</button>
                 <button type="button" class="btn secondary" id="privateUnlockBtn">Desbloquear</button>
                 <button type="button" class="btn secondary" id="privateForgetBtn">Olvidar</button>
               </div>
@@ -1102,7 +419,21 @@
           </div>
         </div>
 
-        <!-- Privacidad -->
+        <!-- Claves compartidas -->
+        <div class="settings-group">
+          <div class="settings-row">
+            <div class="settings-icon green">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M7 7h10v4H7z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 13h6v4H7z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="settings-body">
+              <div class="settings-title">Claves compartidas</div>
+              <div class="settings-sub">Chats con sus claves guardadas cifradas</div>
+            </div>
+          </div>
+          <div id="keysList" class="settings-status"></div>
+        </div>
+
+        <!-- Privacidad general -->
         <div class="settings-group">
           <div class="settings-row">
             <div class="settings-icon gray"></div>
@@ -1115,26 +446,29 @@
               </div>
             </div>
           </div>
-          <div class="settings-status">
-            Se borra solo la información guardada en este dispositivo.
-          </div>
+          <div class="settings-status">Se borra solo la información guardada en este dispositivo.</div>
         </div>
       </section>
     </main>
 
-    <!-- Modal genérico -->
+    <!-- Modal genérico mejorado -->
     <div id="modalOverlay" class="modal-overlay hidden">
       <div class="modal-card">
         <div class="modal-title" id="modalTitle"></div>
         <div class="modal-message" id="modalMessage"></div>
+
+        <!-- Entrada de texto -->
         <div class="modal-input-wrapper" id="modalInputWrapper">
           <input id="modalInput" type="text" />
         </div>
-        <div class="modal-key-wrapper" id="modalKeyWrapper">
-          <div class="modal-key-text" id="modalKeyText"></div>
-          <button type="button" class="btn secondary small" id="modalCopyBtn">Copiar</button>
-        </div>
-        <div class="modal-buttons">
+
+        <!-- Lista de claves copiables -->
+        <div class="modal-keys" id="modalKeysContainer"></div>
+
+        <!-- Lista de opciones (botonera) -->
+        <div class="modal-choice-list hidden" id="modalChoiceList"></div>
+
+        <div class="modal-buttons" id="modalButtons">
           <button type="button" class="btn secondary" id="modalCancelBtn">Cancelar</button>
           <button type="button" class="btn" id="modalConfirmBtn">Aceptar</button>
         </div>
@@ -1148,30 +482,17 @@
     <nav class="bottom-nav">
       <div class="bottom-nav-inner">
         <button class="nav-item" data-view="manual" type="button">
-          <span class="nav-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M5 6h14M5 12h9M5 18h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 6h14M5 12h9M5 18h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           <span class="nav-label">Manual</span>
         </button>
 
         <button class="nav-item active" data-view="chats" type="button">
-          <span class="nav-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M5 5h14v10H10l-4 4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-            </svg>
-          </span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 5h14v10H10l-4 4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>
           <span class="nav-label">Chats</span>
         </button>
 
         <button class="nav-item" data-view="settings" type="button">
-          <span class="nav-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" stroke="currentColor" stroke-width="1.6"/>
-              <path d="M4 12h2m12 0h2M12 4v2m0 12v2m-5.3-11.3 1.4 1.4m7.8 7.8 1.4 1.4m-10.6 0 1.4-1.4m7.8-7.8 1.4-1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>
-          </span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" stroke="currentColor" stroke-width="1.6"/><path d="M4 12h2m12 0h2M12 4v2m0 12v2m-5.3-11.3 1.4 1.4m7.8 7.8 1.4 1.4m-10.6 0 1.4-1.4m7.8-7.8 1.4-1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
           <span class="nav-label">Ajustes</span>
         </button>
       </div>
@@ -1182,192 +503,172 @@
     const enc = new TextEncoder();
     const dec = new TextDecoder();
 
-    const THEME_KEY = "cryptoChat_theme_v1";
-    const STATE_KEY = "cryptoChat_state_v4";
-    const KEYS_STATE_KEY = "cryptoChat_keys_state_v2";
+    const THEME_KEY = "cryptoChat_theme_v2";
+    const STATE_KEY = "cryptoChat_state_v7";
+    const KEYS_STATE_KEY = "cryptoChat_keys_state_v4";
     const PRIVATE_STATE_KEY = "cryptoChat_private_key_v1";
+    const USER_ID_KEY = "cryptoChat_user_id_v1";
 
     let appState = { chats: [] };
-    let keysState = { entries: {} };
+    let keysState = { entries: {} }; // { [chatId]: { cipher, privCipher, unlocked } }
     let privateState = { cipher: null, unlocked: null };
     let currentChatId = null;
     let toastTimeout = null;
+    let userId = null;
+
+    let isEditMode = false;
+    let selectedChatIds = new Set();
+    let chatSearchTerm = "";
 
     function bufToBase64(buffer) {
       const bytes = new Uint8Array(buffer);
       let binary = "";
-      for (let i = 0; i < bytes.byteLength; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
+      for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
       return btoa(binary);
     }
-
     function base64ToBuf(base64) {
       const binary = atob(base64.trim());
       const len = binary.length;
       const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binary.charCodeAt(i);
-      }
+      for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
       return bytes.buffer;
     }
 
     async function deriveKey(password, salt) {
-      const keyMaterial = await crypto.subtle.importKey(
-        "raw",
-        enc.encode(password),
-        { name: "PBKDF2" },
-        false,
-        ["deriveKey"]
-      );
-
+      const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(password), { name: "PBKDF2" }, false, ["deriveKey"]);
       return crypto.subtle.deriveKey(
-        {
-          name: "PBKDF2",
-          salt,
-          iterations: 100000,
-          hash: "SHA-256"
-        },
+        { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
         keyMaterial,
         { name: "AES-GCM", length: 256 },
         false,
-        ["encrypt", "decrypt"]
+        ["encrypt","decrypt"]
       );
     }
-
     async function encryptText(plainText, password) {
       const salt = crypto.getRandomValues(new Uint8Array(16));
       const iv = crypto.getRandomValues(new Uint8Array(12));
       const key = await deriveKey(password, salt);
-
-      const encrypted = await crypto.subtle.encrypt(
-        { name: "AES-GCM", iv },
-        key,
-        enc.encode(plainText)
-      );
-
-      const saltIvCipher = new Uint8Array(
-        salt.byteLength + iv.byteLength + encrypted.byteLength
-      );
-      saltIvCipher.set(salt, 0);
-      saltIvCipher.set(iv, salt.byteLength);
-      saltIvCipher.set(new Uint8Array(encrypted), salt.byteLength + iv.byteLength);
-
-      return bufToBase64(saltIvCipher.buffer);
+      const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(plainText));
+      const out = new Uint8Array(salt.byteLength + iv.byteLength + encrypted.byteLength);
+      out.set(salt, 0); out.set(iv, 16); out.set(new Uint8Array(encrypted), 28);
+      return bufToBase64(out.buffer);
     }
-
     async function decryptText(cipherBase64, password) {
       const data = new Uint8Array(base64ToBuf(cipherBase64));
-      if (data.byteLength < 16 + 12 + 1) {
-        throw new Error("Formato de texto cifrado no válido");
-      }
-      const salt = data.slice(0, 16);
-      const iv = data.slice(16, 28);
-      const ciphertext = data.slice(28);
-
+      if (data.byteLength < 29) throw new Error("Formato no válido");
+      const salt = data.slice(0,16), iv = data.slice(16,28), ciphertext = data.slice(28);
       const key = await deriveKey(password, salt);
-
-      const decrypted = await crypto.subtle.decrypt(
-        { name: "AES-GCM", iv },
-        key,
-        ciphertext
-      );
-
+      const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext);
       return dec.decode(decrypted);
     }
 
+    function randomFromCharset(length, charset) {
+      const bytes = crypto.getRandomValues(new Uint8Array(length));
+      let out = "";
+      for (let i = 0; i < length; i++) out += charset.charAt(bytes[i] % charset.length);
+      return out;
+    }
+    function generateSharedKeySuggestion() {
+      const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZñÑ";
+      const digits = "0123456789";
+      const specials = "!@#$%&*+-_=?.:,;";
+      return randomFromCharset(24, letters + digits + specials);
+    }
+    function generateUserId() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      return randomFromCharset(12, chars);
+    }
     function generateId() {
       const bytes = crypto.getRandomValues(new Uint8Array(16));
-      return Array.from(bytes)
-        .map(b => b.toString(16).padStart(2, "0"))
-        .join("");
+      return Array.from(bytes).map(b => b.toString(16).padStart(2,"0")).join("");
     }
-
     function formatTime(ts) {
       if (!ts) return "";
       const d = new Date(ts);
       return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     }
+    function getInitialLetter(name) { return (name || "?").trim().charAt(0).toUpperCase(); }
 
-    function getInitialLetter(name) {
-      if (!name) return "?";
-      return name.trim().charAt(0).toUpperCase();
-    }
-
+    /* Toast */
     function showToast(message, type) {
       const toast = document.getElementById("toast");
-      if (!toast) return;
       toast.textContent = message;
       toast.className = "toast" + (type ? " " + type : "");
       toast.classList.add("visible");
       if (toastTimeout) clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => {
-        toast.classList.remove("visible");
-      }, 2000);
+      toastTimeout = setTimeout(() => toast.classList.remove("visible"), 2000);
     }
 
-    /* Modal genérico */
-
+    /* MODAL mejorado */
     function setupModal() {
       const overlay = document.getElementById("modalOverlay");
       const titleEl = document.getElementById("modalTitle");
       const messageEl = document.getElementById("modalMessage");
       const inputWrapper = document.getElementById("modalInputWrapper");
       const inputEl = document.getElementById("modalInput");
-      const keyWrapper = document.getElementById("modalKeyWrapper");
-      const keyTextEl = document.getElementById("modalKeyText");
-      const copyBtn = document.getElementById("modalCopyBtn");
+      const keysContainer = document.getElementById("modalKeysContainer");
+      const choicesList = document.getElementById("modalChoiceList");
       const cancelBtn = document.getElementById("modalCancelBtn");
       const confirmBtn = document.getElementById("modalConfirmBtn");
+      const buttons = document.getElementById("modalButtons");
 
       let modalResolve = null;
       let currentOptions = null;
 
+      function clearKeys() { keysContainer.innerHTML = ""; }
+      function clearChoices() { choicesList.innerHTML = ""; choicesList.classList.add("hidden"); }
+
       function closeModal(result) {
         overlay.classList.add("hidden");
-        if (modalResolve) {
-          modalResolve(result);
-          modalResolve = null;
-        }
+        if (modalResolve) { modalResolve(result); modalResolve = null; }
         currentOptions = null;
+        clearKeys(); clearChoices();
       }
 
-      copyBtn.addEventListener("click", () => {
-        if (!currentOptions || !currentOptions.copyText) return;
-        navigator.clipboard.writeText(currentOptions.copyText)
-          .then(() => showToast("Copiado en el portapapeles", "ok"))
-          .catch(() => showToast("No se ha podido copiar", "error"));
-      });
-
-      cancelBtn.addEventListener("click", () => {
-        closeModal(null);
-      });
-
+      cancelBtn.addEventListener("click", () => closeModal(null));
       confirmBtn.addEventListener("click", () => {
-        if (currentOptions && currentOptions.mode === "prompt") {
-          closeModal((inputEl.value || "").trim());
-        } else {
-          closeModal(true);
-        }
+        if (currentOptions && currentOptions.mode === "prompt") closeModal((inputEl.value || "").trim());
+        else closeModal(true);
       });
-
-      overlay.addEventListener("click", (e) => {
-        if (e.target === overlay) {
-          closeModal(null);
-        }
-      });
-
+      overlay.addEventListener("click", (e) => { if (e.target === overlay) closeModal(null); });
       document.addEventListener("keydown", (e) => {
         if (overlay.classList.contains("hidden")) return;
-        if (e.key === "Escape") {
-          closeModal(null);
-        } else if (e.key === "Enter" && currentOptions && currentOptions.mode === "prompt") {
-          e.preventDefault();
-          closeModal((inputEl.value || "").trim());
+        if (e.key === "Escape") closeModal(null);
+        else if (e.key === "Enter" && currentOptions && currentOptions.mode === "prompt") {
+          e.preventDefault(); closeModal((inputEl.value || "").trim());
         }
       });
 
-      window.openModal = function (options) {
+      function addKeyBlock(label, value) {
+        const labelEl = document.createElement("div");
+        labelEl.className = "modal-kv-label";
+        labelEl.textContent = label;
+
+        const wrap = document.createElement("div");
+        wrap.className = "modal-key-wrapper";
+        const text = document.createElement("div");
+        text.className = "modal-key-text";
+        text.textContent = value;
+
+        const copy = document.createElement("button");
+        copy.type = "button"; copy.className = "btn secondary small"; copy.textContent = "Copiar";
+        copy.addEventListener("click", async () => {
+          try { await navigator.clipboard.writeText(value); showToast("Copiado", "ok"); } catch { showToast("No se pudo copiar", "error"); }
+        });
+
+        wrap.appendChild(text); wrap.appendChild(copy);
+        keysContainer.appendChild(labelEl); keysContainer.appendChild(wrap);
+      }
+
+      function addChoice(label, value) {
+        const btn = document.createElement("button");
+        btn.type = "button"; btn.className = "btn secondary"; btn.textContent = label;
+        btn.addEventListener("click", () => closeModal({ choice: value }));
+        choicesList.appendChild(btn);
+        choicesList.classList.remove("hidden");
+      }
+
+      window.openModal = function(options) {
         currentOptions = options || {};
         return new Promise(resolve => {
           modalResolve = resolve;
@@ -1375,450 +676,317 @@
           messageEl.textContent = options.message || "";
           const mode = options.mode || "alert";
           inputWrapper.style.display = mode === "prompt" ? "block" : "none";
-          keyWrapper.style.display = options.copyText ? "flex" : "none";
-
+          buttons.style.display = options.choices ? "none" : "flex";
           if (mode === "prompt") {
             inputEl.type = options.password ? "password" : "text";
             inputEl.placeholder = options.placeholder || "";
             inputEl.value = options.defaultValue || "";
           }
-          if (options.copyText) {
-            keyTextEl.textContent = options.copyText;
+
+          clearKeys(); clearChoices();
+          if (options.keys && Array.isArray(options.keys)) {
+            options.keys.forEach(k => addKeyBlock(k.label, k.value));
+          } else if (options.copyText) {
+            addKeyBlock("Dato", options.copyText);
+          }
+          if (options.choices && Array.isArray(options.choices)) {
+            options.choices.forEach(c => addChoice(c.label, c.value));
           }
 
-          cancelBtn.style.display = options.hideCancel ? "none" : "inline-flex";
-          confirmBtn.textContent = options.confirmText || "Aceptar";
-          cancelBtn.textContent = options.cancelText || "Cancelar";
-
           overlay.classList.remove("hidden");
-          setTimeout(() => {
-            if (mode === "prompt") inputEl.focus();
-          }, 20);
+          setTimeout(() => { if (mode === "prompt") inputEl.focus(); }, 20);
         });
       };
     }
-
     async function askText(title, message, opts) {
       const res = await openModal({
-        title,
-        message,
-        mode: "prompt",
+        title, message, mode: "prompt",
         placeholder: opts && opts.placeholder,
         defaultValue: opts && opts.defaultValue,
-        password: opts && opts.password,
-        confirmText: (opts && opts.confirmText) || "Aceptar",
-        cancelText: (opts && opts.cancelText) || "Cancelar"
+        password: opts && opts.password
       });
       if (res == null) return null;
       const trimmed = String(res).trim();
       if (!trimmed) return "";
       return trimmed;
     }
-
     async function askConfirm(title, message, confirmText) {
-      const res = await openModal({
-        title,
-        message,
-        mode: "alert",
-        confirmText: confirmText || "Aceptar",
-        cancelText: "Cancelar"
-      });
+      const res = await openModal({ title, message, mode: "alert" });
       return !!res;
     }
-
-    async function showKeyModal(title, message, key) {
-      await openModal({
-        title,
-        message,
-        mode: "alert",
-        copyText: key,
-        confirmText: "Cerrar",
-        hideCancel: true
-      });
+    async function askChoice(title, message, choices) {
+      const res = await openModal({ title, message, choices });
+      return res && res.choice ? res.choice : null;
     }
 
     /* Estado */
-
     function loadAppState() {
       try {
         const raw = localStorage.getItem(STATE_KEY);
-        if (!raw) {
-          appState = { chats: [] };
-          return;
-        }
+        if (!raw) { appState = { chats: [] }; return; }
         const parsed = JSON.parse(raw);
-        if (!parsed || !Array.isArray(parsed.chats)) {
-          appState = { chats: [] };
-          return;
-        }
         appState = {
-          chats: parsed.chats.map(chat => ({
+          chats: (parsed.chats || []).map(chat => ({
             id: chat.id || generateId(),
             name: chat.name || "Chat",
-            messages: Array.isArray(chat.messages)
-              ? chat.messages.map(msg => ({
-                  id: msg.id || generateId(),
-                  fromMe: !!msg.fromMe,
-                  cipher: msg.cipher || "",
-                  timestamp: msg.timestamp || Date.now()
-                }))
-              : [],
+            messages: Array.isArray(chat.messages) ? chat.messages.map(m => ({
+              id: m.id || generateId(),
+              fromMe: !!m.fromMe,
+              cipher: m.cipher || "",
+              timestamp: m.timestamp || Date.now(),
+              priv: !!m.priv
+            })) : [],
             lastPreview: chat.lastPreview || "",
             lastTimestamp: chat.lastTimestamp || null,
-            doubleLocked: !!chat.doubleLocked,
-            locked: !!chat.locked
+            locked: !!chat.locked,
+            doubleLocked: !!chat.doubleLocked,      // chat completo con clave privada
+            privateMine: !!chat.privateMine,        // solo mis mensajes con clave privada
+            idToken: chat.idToken || null
           }))
         };
-      } catch (e) {
-        console.error("Error cargando chats", e);
-        appState = { chats: [] };
-      }
+      } catch { appState = { chats: [] }; }
     }
-
     function saveAppState() {
-      try {
-        localStorage.setItem(STATE_KEY, JSON.stringify(appState));
-      } catch (e) {
-        console.error("Error guardando chats", e);
-      }
+      try { localStorage.setItem(STATE_KEY, JSON.stringify(appState)); } catch {}
     }
 
     function loadKeysState() {
       try {
         const raw = localStorage.getItem(KEYS_STATE_KEY);
-        if (!raw) {
-          keysState = { entries: {} };
-          return;
-        }
-        const parsed = JSON.parse(raw);
         keysState = { entries: {} };
-        if (parsed && typeof parsed === "object") {
-          Object.keys(parsed).forEach(chatId => {
-            keysState.entries[chatId] = {
-              cipher: parsed[chatId].cipher || null,
-              unlocked: null
-            };
-          });
-        }
-      } catch (e) {
-        console.error("Error cargando claves", e);
-        keysState = { entries: {} };
-      }
+        if (!raw) return;
+        const parsed = JSON.parse(raw) || {};
+        Object.keys(parsed).forEach(chatId => {
+          keysState.entries[chatId] = {
+            cipher: parsed[chatId].cipher || null,
+            privCipher: parsed[chatId].privCipher || null,
+            unlocked: null
+          };
+        });
+      } catch { keysState = { entries: {} }; }
     }
-
     function saveKeysState() {
       try {
-        const toSave = {};
-        Object.keys(keysState.entries).forEach(chatId => {
-          const entry = keysState.entries[chatId];
-          if (entry && entry.cipher) {
-            toSave[chatId] = { cipher: entry.cipher };
-          }
+        const out = {};
+        Object.keys(keysState.entries).forEach(id => {
+          const e = keysState.entries[id];
+          out[id] = { cipher: e.cipher || null, privCipher: e.privCipher || null };
         });
-        localStorage.setItem(KEYS_STATE_KEY, JSON.stringify(toSave));
-      } catch (e) {
-        console.error("Error guardando claves", e);
-      }
+        localStorage.setItem(KEYS_STATE_KEY, JSON.stringify(out));
+      } catch {}
     }
 
     function loadPrivateState() {
       try {
         const raw = localStorage.getItem(PRIVATE_STATE_KEY);
-        if (!raw) {
-          privateState = { cipher: null, unlocked: null };
-          return;
-        }
+        if (!raw) { privateState = { cipher: null, unlocked: null }; return; }
         const parsed = JSON.parse(raw);
-        privateState = {
-          cipher: parsed && parsed.cipher ? parsed.cipher : null,
-          unlocked: null
-        };
-      } catch (e) {
-        console.error("Error cargando clave privada", e);
-        privateState = { cipher: null, unlocked: null };
-      }
+        privateState = { cipher: parsed && parsed.cipher ? parsed.cipher : null, unlocked: null };
+      } catch { privateState = { cipher: null, unlocked: null }; }
+    }
+    function savePrivateState() {
+      try { localStorage.setItem(PRIVATE_STATE_KEY, JSON.stringify({ cipher: privateState.cipher || null })); } catch {}
     }
 
-    function savePrivateState() {
+    function loadUserId() {
       try {
-        localStorage.setItem(PRIVATE_STATE_KEY, JSON.stringify({ cipher: privateState.cipher || null }));
-      } catch (e) {
-        console.error("Error guardando clave privada", e);
-      }
+        const raw = localStorage.getItem(USER_ID_KEY);
+        userId = raw || generateUserId();
+        if (!raw) localStorage.setItem(USER_ID_KEY, userId);
+      } catch { userId = generateUserId(); }
+      const el = document.getElementById("userIdValue"); if (el) el.textContent = userId;
     }
 
     function getUnlockedKeyForChat(chatId) {
       const entry = keysState.entries[chatId];
       return entry && entry.unlocked ? entry.unlocked : null;
     }
+    function getPrivateKeyUnlocked() { return privateState.unlocked || null; }
+    function findChatById(id) { return (appState.chats || []).find(c => c.id === id) || null; }
 
-    function getPrivateKeyUnlocked() {
-      return privateState.unlocked || null;
-    }
+    async function ensureSharedKeyUnlocked(chatId) {
+      const entry = keysState.entries[chatId];
+      if (!entry) return null;
+      if (entry.unlocked) return entry.unlocked;
 
-    function findChatById(id) {
-      return (appState.chats || []).find(c => c.id === id) || null;
+      // 1) Intentar con clave privada si hay protección
+      if (entry.privCipher) {
+        let pk = getPrivateKeyUnlocked();
+        if (!pk && privateState.cipher) {
+          const ok = await askConfirm("Clave privada", "Se necesita tu clave privada para ver esta clave.");
+          if (!ok) return null;
+          await unlockPrivateKey();
+          pk = getPrivateKeyUnlocked();
+        }
+        if (pk) {
+          try {
+            const plain = await decryptText(entry.privCipher, pk);
+            entry.unlocked = plain; saveKeysState(); return plain;
+          } catch {}
+        }
+      }
+
+      // 2) Pedir la original
+      if (entry.cipher) {
+        const key = await askText("Desbloquear clave", "Introduce la clave original del chat.", { password: true, placeholder: "Clave original" });
+        if (key == null || key === "") return null;
+        try {
+          const plain = await decryptText(entry.cipher, key);
+          entry.unlocked = plain; saveKeysState(); return plain;
+        } catch { showToast("No se ha podido desbloquear la clave.", "error"); return null; }
+      }
+      return null;
     }
 
     async function updateLastPreviewForChat(chatId) {
       const chat = findChatById(chatId);
       if (!chat || !chat.messages || !chat.messages.length) {
-        if (chat) {
-          chat.lastPreview = "";
-          chat.lastTimestamp = null;
-        }
-        saveAppState();
+        if (chat) { chat.lastPreview = ""; chat.lastTimestamp = null; saveAppState(); }
         return;
       }
       const last = chat.messages[chat.messages.length - 1];
       chat.lastTimestamp = last.timestamp || Date.now();
 
-      if (chat.doubleLocked) {
-        chat.lastPreview = "[privado]";
-        saveAppState();
-        return;
-      }
+      if (chat.doubleLocked) { chat.lastPreview = "[privado]"; saveAppState(); return; }
 
-      const key = getUnlockedKeyForChat(chat.id);
-      if (!key) {
-        chat.lastPreview = "[cifrado]";
-      } else {
-        try {
-          const text = await decryptText(last.cipher, key);
-          chat.lastPreview = text.length > 60 ? text.slice(0, 60) + "…" : text;
-        } catch (e) {
-          console.error("Error en preview", e);
-          chat.lastPreview = "[cifrado]";
+      const sharedKey = getUnlockedKeyForChat(chat.id);
+      if (!sharedKey) { chat.lastPreview = "[cifrado]"; saveAppState(); return; }
+
+      try {
+        let inner = last.cipher;
+        if (chat.privateMine && last.fromMe && last.priv) {
+          const pk = getPrivateKeyUnlocked();
+          if (!pk) { chat.lastPreview = "[privado]"; saveAppState(); return; }
+          inner = await decryptText(inner, pk);
         }
-      }
+        const text = await decryptText(inner, sharedKey);
+        chat.lastPreview = text.length > 60 ? text.slice(0,60) + "…" : text;
+      } catch { chat.lastPreview = "[cifrado]"; }
       saveAppState();
     }
 
-    /* Render de chats */
+    /* Nav inferior visible/oculto */
+    function setBottomNavVisible(visible) {
+      const nav = document.querySelector(".bottom-nav");
+      const app = document.querySelector(".app");
+      if (visible) { nav.classList.remove("hidden"); app.classList.remove("chat-open"); }
+      else { nav.classList.add("hidden"); app.classList.add("chat-open"); }
+    }
 
+    /* Render de chats y detalle */
     function renderChatList() {
       const container = document.getElementById("chatList");
-      if (!container) return;
+      const titleLabel = document.getElementById("chatsTitleLabel");
       container.innerHTML = "";
 
       if (!appState.chats.length) {
-        const p = document.createElement("p");
-        p.className = "empty";
-        p.textContent = "Sin chats todavía.";
-        container.appendChild(p);
-        return;
+        const p = document.createElement("p"); p.className = "empty"; p.textContent = "Sin chats todavía."; container.appendChild(p);
+        if (titleLabel) titleLabel.textContent = "Chats"; return;
       }
+      const chatsSorted = [...appState.chats].sort((a,b) => (b.lastTimestamp||0) - (a.lastTimestamp||0));
+      const filtered = chatsSorted.filter(c => !chatSearchTerm || (c.name||"").toLowerCase().includes(chatSearchTerm));
 
-      const chatsSorted = [...appState.chats].sort((a, b) => {
-        return (b.lastTimestamp || 0) - (a.lastTimestamp || 0);
-      });
+      if (titleLabel) titleLabel.textContent = isEditMode && selectedChatIds.size > 0 ? "Seleccionados (" + selectedChatIds.size + ")" : "Chats";
 
-      chatsSorted.forEach(chat => {
+      filtered.forEach(chat => {
         const key = getUnlockedKeyForChat(chat.id);
-
         const row = document.createElement("button");
-        row.type = "button";
-        row.className = "chat-row" + (chat.id === currentChatId ? " active" : "");
+        row.type = "button"; row.className = "chat-row" + (chat.id === currentChatId && !isEditMode ? " active" : "");
         row.dataset.chatId = chat.id;
 
-        const avatar = document.createElement("div");
-        avatar.className = "chat-avatar";
-        avatar.textContent = getInitialLetter(chat.name);
-
-        const body = document.createElement("div");
-        body.className = "chat-row-body";
-
-        const top = document.createElement("div");
-        top.className = "chat-row-top";
-
-        const nameDiv = document.createElement("div");
-        nameDiv.className = "chat-row-name";
-        nameDiv.textContent = chat.name || "Chat";
-
-        const timeDiv = document.createElement("div");
-        timeDiv.className = "chat-row-time";
-        timeDiv.textContent = chat.lastTimestamp ? formatTime(chat.lastTimestamp) : "";
-
-        top.appendChild(nameDiv);
-        top.appendChild(timeDiv);
-
-        const bottom = document.createElement("div");
-        bottom.className = "chat-row-bottom";
-
-        const previewDiv = document.createElement("div");
-        previewDiv.className = "chat-row-preview";
-        const previewText = chat.locked
-          ? "Chat bloqueado"
-          : chat.lastPreview || "Sin mensajes";
-        previewDiv.textContent = previewText;
-
-        const badge = document.createElement("div");
-        badge.className = "chat-row-badge";
-
-        let badgeLabel = "";
-        if (chat.locked) {
-          badgeLabel = "Chat bloqueado";
-        } else if (chat.doubleLocked) {
-          badgeLabel = "Privado";
-        } else if (key) {
-          badgeLabel = "Clave activa";
-        } else {
-          badgeLabel = "Clave bloqueada";
+        if (isEditMode) {
+          const circle = document.createElement("div"); circle.className = "chat-select-circle";
+          const inner = document.createElement("div"); inner.className = "chat-select-circle-inner";
+          if (selectedChatIds.has(chat.id)) circle.classList.add("selected");
+          circle.appendChild(inner); row.appendChild(circle);
         }
-        badge.textContent = badgeLabel;
+
+        const avatar = document.createElement("div"); avatar.className = "chat-avatar"; avatar.textContent = getInitialLetter(chat.name);
+        const body = document.createElement("div"); body.className = "chat-row-body";
+        const top = document.createElement("div"); top.className = "chat-row-top";
+        const nameDiv = document.createElement("div"); nameDiv.className = "chat-row-name"; nameDiv.textContent = chat.name || "Chat";
+        const timeDiv = document.createElement("div"); timeDiv.className = "chat-row-time"; timeDiv.textContent = chat.lastTimestamp ? formatTime(chat.lastTimestamp) : "";
+        top.appendChild(nameDiv); top.appendChild(timeDiv);
+
+        const bottom = document.createElement("div"); bottom.className = "chat-row-bottom";
+        const previewDiv = document.createElement("div"); previewDiv.className = "chat-row-preview";
+        previewDiv.textContent = chat.locked ? "Chat bloqueado" : (chat.lastPreview || "Sin mensajes");
+        const badge = document.createElement("div"); badge.className = "chat-row-badge";
+        badge.textContent = chat.locked ? "Bloqueado" : chat.doubleLocked ? "Privado" : key ? "Clave activa" : "Clave bloqueada";
 
         const lockBtn = document.createElement("button");
-        lockBtn.type = "button";
-        lockBtn.className = "lock-toggle-btn" + (chat.locked ? " active" : "");
-        lockBtn.innerHTML = `
-          <svg viewBox="0 0 24 24" fill="none">
-            <path d="M8 10V8a4 4 0 1 1 8 0v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            <rect x="6" y="10" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/>
-          </svg>
-        `;
-        lockBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          toggleChatLock(chat.id).catch(console.error);
-        });
+        lockBtn.type = "button"; lockBtn.className = "lock-toggle-btn" + (chat.locked ? " active" : "");
+        lockBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none"><path d="M8 10V8a4 4 0 1 1 8 0v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><rect x="6" y="10" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/></svg>`;
+        lockBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleChatLock(chat.id).catch(console.error); });
 
-        const bottomRight = document.createElement("div");
-        bottomRight.className = "chat-row-right";
-        bottomRight.appendChild(badge);
-        bottomRight.appendChild(lockBtn);
+        const br = document.createElement("div"); br.className = "chat-row-right"; br.appendChild(badge); if (!isEditMode) br.appendChild(lockBtn);
+        bottom.appendChild(previewDiv); bottom.appendChild(br);
 
-        bottom.appendChild(previewDiv);
-        bottom.appendChild(bottomRight);
-
-        body.appendChild(top);
-        body.appendChild(bottom);
-
-        row.appendChild(avatar);
-        row.appendChild(body);
+        body.appendChild(top); body.appendChild(bottom);
+        row.appendChild(avatar); row.appendChild(body);
 
         row.addEventListener("click", () => {
-          if (chat.locked) {
-            handleLockedChatClick(chat.id).catch(console.error);
-          } else {
-            selectChat(chat.id);
-          }
+          if (isEditMode) { if (selectedChatIds.has(chat.id)) selectedChatIds.delete(chat.id); else selectedChatIds.add(chat.id); renderChatList(); }
+          else { if (chat.locked) handleLockedChatClick(chat.id).catch(console.error); else selectChat(chat.id); }
         });
 
         container.appendChild(row);
       });
     }
 
-    function updateChatLockButton(chat) {
-      const btn = document.getElementById("chatLockBtn");
-      if (!btn) return;
-      btn.classList.toggle("locked", !!(chat && chat.doubleLocked));
-    }
-
     async function renderChatMessages() {
       const container = document.getElementById("chatMessages");
       const titleEl = document.getElementById("chatTitle");
       const subtitleEl = document.getElementById("chatSubtitle");
-      if (!container || !titleEl || !subtitleEl) return;
-
       container.innerHTML = "";
       const chat = findChatById(currentChatId);
-      updateChatLockButton(chat);
-
-      if (!chat) {
-        titleEl.textContent = "Selecciona un chat";
-        subtitleEl.textContent = "";
-        const p = document.createElement("p");
-        p.className = "empty";
-        p.textContent = "No hay chat seleccionado.";
-        container.appendChild(p);
-        return;
-      }
-
+      if (!chat) { titleEl.textContent = "Selecciona un chat"; subtitleEl.textContent = ""; container.innerHTML = `<p class="empty">No hay chat seleccionado.</p>`; return; }
       titleEl.textContent = chat.name || "Chat";
 
-      if (chat.locked) {
-        subtitleEl.textContent = "Chat bloqueado. Desbloquéalo desde la lista de chats.";
-        const p = document.createElement("p");
-        p.className = "empty";
-        p.textContent = "Este chat está bloqueado. Pulsa el candado en la lista de chats para abrirlo.";
-        container.appendChild(p);
-        return;
-      }
+      if (chat.locked) { subtitleEl.textContent = "Chat bloqueado. Pulsa el candado en la lista para abrirlo."; container.innerHTML = `<p class="empty">Este chat está bloqueado.</p>`; return; }
 
       const sharedKey = getUnlockedKeyForChat(chat.id);
-      const privateKey = getPrivateKeyUnlocked();
+      const pk = getPrivateKeyUnlocked();
 
-      if (chat.doubleLocked && !privateKey) {
+      if (chat.doubleLocked && !pk) {
         subtitleEl.textContent = "Chat cifrado con tu clave privada. Desbloquéala en Ajustes.";
-        const p = document.createElement("p");
-        p.className = "empty";
-        p.textContent = "Este chat está bloqueado con tu clave privada.";
-        container.appendChild(p);
+        container.innerHTML = `<p class="empty">Este chat está bloqueado con tu clave privada.</p>`;
+        return;
+      }
+      if (!chat.messages.length) {
+        subtitleEl.textContent = sharedKey ? "Clave compartida activa." : "Configura la clave compartida en Ajustes.";
+        container.innerHTML = `<p class="empty">Todavía no hay mensajes en este chat.</p>`;
         return;
       }
 
-      if (!chat.messages || !chat.messages.length) {
-        subtitleEl.textContent = sharedKey
-          ? "Clave compartida activa para este chat."
-          : "Configura la clave compartida en Ajustes.";
-        const p = document.createElement("p");
-        p.className = "empty";
-        p.textContent = "Todavía no hay mensajes en este chat.";
-        container.appendChild(p);
-        return;
-      }
-
-      if (!sharedKey) {
-        subtitleEl.textContent = "Clave compartida bloqueada. Ajusta la clave en Ajustes.";
-        chat.messages.forEach(msg => {
-          const div = document.createElement("div");
-          div.className = "message " + (msg.fromMe ? "me" : "other");
-          const snippet = msg.cipher
-            ? msg.cipher.slice(0, 32) + (msg.cipher.length > 32 ? "…" : "")
-            : "[cifrado]";
-          const textDiv = document.createElement("div");
-          textDiv.className = "message-text";
-          textDiv.textContent = chat.doubleLocked ? "[privado]" : "[cifrado] " + snippet;
-          const metaDiv = document.createElement("div");
-          metaDiv.className = "message-meta";
-          const who = msg.fromMe ? "Tú" : "Otro";
-          const timeStr = msg.timestamp ? formatTime(msg.timestamp) : "";
-          metaDiv.textContent = who + (timeStr ? " · " + timeStr : "");
-          div.appendChild(textDiv);
-          div.appendChild(metaDiv);
-          div.addEventListener("click", async () => {
-            try {
-              await navigator.clipboard.writeText(msg.cipher);
-              showToast("Texto cifrado copiado.", "ok");
-            } catch (e) {
-              console.error(e);
-              showToast("No se ha podido copiar el cifrado.", "error");
-            }
-          });
-          container.appendChild(div);
-        });
-        container.scrollTop = container.scrollHeight;
-        return;
-      }
-
-      subtitleEl.textContent = chat.doubleLocked
-        ? "Mensajes cifrados con clave compartida y clave privada."
-        : "Mensajes cifrados con la clave compartida del chat.";
+      // Subtítulo por estado
+      if (chat.doubleLocked) subtitleEl.textContent = "Capa privada para todo el chat.";
+      else if (chat.privateMine) subtitleEl.textContent = "Capa privada en tus mensajes. Los del otro se muestran con la clave compartida.";
+      else subtitleEl.textContent = "Cifrado con clave compartida.";
 
       for (const msg of chat.messages) {
         const div = document.createElement("div");
         div.className = "message " + (msg.fromMe ? "me" : "other");
-
         let text = "[cifrado]";
+
         try {
-          let cipherForShared = msg.cipher;
+          let inner = msg.cipher;
+
           if (chat.doubleLocked) {
-            cipherForShared = await decryptText(msg.cipher, privateKey);
+            inner = await decryptText(inner, pk);
+            text = await decryptText(inner, sharedKey);
+          } else if (chat.privateMine && msg.fromMe && msg.priv) {
+            if (!pk) {
+              text = "[privado]"; // no hay pk desbloqueada
+            } else {
+              inner = await decryptText(inner, pk);
+              text = await decryptText(inner, sharedKey);
+            }
+          } else {
+            if (!sharedKey) text = "[cifrado]";
+            else text = await decryptText(inner, sharedKey);
           }
-          text = await decryptText(cipherForShared, sharedKey);
-        } catch (e) {
-          console.error("Error descifrando mensaje", e);
-          text = "[cifrado]";
-        }
+        } catch { text = "[cifrado]"; }
 
         const textDiv = document.createElement("div");
         textDiv.className = "message-text";
@@ -1826,666 +994,515 @@
 
         const metaDiv = document.createElement("div");
         metaDiv.className = "message-meta";
-        const who = msg.fromMe ? "Tú" : "Otro";
-        const timeStr = msg.timestamp ? formatTime(msg.timestamp) : "";
-        metaDiv.textContent = who + (timeStr ? " · " + timeStr : "");
-
-        div.appendChild(textDiv);
-        div.appendChild(metaDiv);
+        metaDiv.textContent = (msg.fromMe ? "Tú" : "Otro") + (msg.timestamp ? " · " + formatTime(msg.timestamp) : "");
+        div.appendChild(textDiv); div.appendChild(metaDiv);
 
         div.addEventListener("click", async () => {
-          try {
-            await navigator.clipboard.writeText(msg.cipher);
-            showToast("Texto cifrado copiado.", "ok");
-          } catch (e) {
-            console.error(e);
-            showToast("No se ha podido copiar el cifrado.", "error");
-          }
+          try { await navigator.clipboard.writeText(msg.cipher); showToast("Texto cifrado copiado.", "ok"); } catch { showToast("No se ha podido copiar el cifrado.", "error"); }
         });
 
         container.appendChild(div);
       }
-
       container.scrollTop = container.scrollHeight;
     }
 
     function showChatList() {
-      const list = document.getElementById("chatsListContainer");
-      const detail = document.getElementById("chatDetailContainer");
-      if (!list || !detail) return;
-      list.classList.remove("hidden");
-      detail.classList.add("hidden");
+      document.getElementById("chatsListContainer").classList.remove("hidden");
+      document.getElementById("chatDetailContainer").classList.add("hidden");
       currentChatId = null;
+      setBottomNavVisible(true);
       renderChatList();
     }
-
     function showChatDetail() {
-      const list = document.getElementById("chatsListContainer");
-      const detail = document.getElementById("chatDetailContainer");
-      if (!list || !detail) return;
-      list.classList.add("hidden");
-      detail.classList.remove("hidden");
+      document.getElementById("chatsListContainer").classList.add("hidden");
+      document.getElementById("chatDetailContainer").classList.remove("hidden");
+      setBottomNavVisible(false);
     }
+    function selectChat(chatId) { currentChatId = chatId; renderChatList(); showChatDetail(); renderChatMessages().catch(console.error); }
 
-    function selectChat(chatId) {
-      currentChatId = chatId;
-      renderChatList();
-      showChatDetail();
-      renderChatMessages().catch(console.error);
-    }
-
-    /* Bloqueo de chat desde la lista */
-
+    /* Bloqueo por chat (lista) */
     async function toggleChatLock(chatId) {
-      const chat = findChatById(chatId);
-      if (!chat) return;
-
+      const chat = findChatById(chatId); if (!chat) return;
       if (!chat.locked) {
-        const ok = await askConfirm(
-          "Bloquear chat",
-          "El chat se ocultará en este dispositivo. Para abrirlo tendrás que introducir su clave compartida.",
-          "Bloquear"
-        );
-        if (!ok) return;
+        const ok = await askConfirm("Bloquear chat", "Para abrirlo necesitarás su clave compartida."); if (!ok) return;
         chat.locked = true;
       } else {
-        const ok = await askConfirm(
-          "Desbloquear chat",
-          "Este chat dejará de estar bloqueado en este dispositivo.",
-          "Desbloquear"
-        );
-        if (!ok) return;
+        const ok = await askConfirm("Desbloquear chat", "Dejará de estar bloqueado en este dispositivo."); if (!ok) return;
         chat.locked = false;
       }
-
-      saveAppState();
-      renderChatList();
-      if (currentChatId === chatId) {
-        renderChatMessages().catch(console.error);
-      }
+      saveAppState(); renderChatList(); if (currentChatId === chatId) renderChatMessages().catch(console.error);
     }
-
     async function handleLockedChatClick(chatId) {
-      const chat = findChatById(chatId);
-      if (!chat) return;
-
-      if (!chat.locked) {
-        selectChat(chatId);
-        return;
-      }
-
-      const proceed = await askConfirm(
-        "Chat bloqueado",
-        "Para abrir este chat se necesita su clave compartida.",
-        "Desbloquear"
-      );
+      const chat = findChatById(chatId); if (!chat) return;
+      const proceed = await askConfirm("Chat bloqueado", "Para abrir este chat se necesita su clave compartida.");
       if (!proceed) return;
-
-      if (!keysState.entries[chatId]) {
-        keysState.entries[chatId] = { cipher: null, unlocked: null };
-      }
-      const entry = keysState.entries[chatId];
-
-      if (!entry.unlocked) {
-        if (entry.cipher) {
-          await unlockStoredKeyForChat(chatId);
-        } else {
-          await configureKeyForChat(chatId, true);
-        }
-      }
-
-      const key = getUnlockedKeyForChat(chatId);
-      if (!key) {
-        showToast("No se ha podido desbloquear la clave del chat.", "error");
-        return;
-      }
-
-      chat.locked = false;
-      saveAppState();
-      renderChatList();
-      selectChat(chatId);
+      if (!keysState.entries[chatId]) keysState.entries[chatId] = { cipher: null, privCipher: null, unlocked: null };
+      const key = await ensureSharedKeyUnlocked(chatId);
+      if (!key) { showToast("No se ha podido desbloquear la clave del chat.", "error"); return; }
+      chat.locked = false; saveAppState(); renderChatList(); selectChat(chatId);
     }
 
-    /* Cifrado con clave privada para todo el chat */
+    /* Modos de cifrado privado */
+    async function encryptAllWithPrivate(chat, pk) {
+      if (!chat.messages.length) return;
+      for (const msg of chat.messages) {
+        if (!msg.priv) { const outer = await encryptText(msg.cipher, pk); msg.cipher = outer; msg.priv = true; }
+      }
+    }
+    async function decryptAllPrivate(chat, pk) {
+      if (!chat.messages.length) return;
+      const out = [];
+      for (const msg of chat.messages) {
+        const inner = await decryptText(msg.cipher, pk);
+        out.push(inner);
+      }
+      chat.messages.forEach((m,i) => { m.cipher = out[i]; m.priv = false; });
+    }
+    async function encryptMineWithPrivate(chat, pk) {
+      for (const msg of chat.messages) {
+        if (msg.fromMe && !msg.priv) { msg.cipher = await encryptText(msg.cipher, pk); msg.priv = true; }
+      }
+    }
+    async function decryptMinePrivate(chat, pk) {
+      const out = [];
+      for (const msg of chat.messages) {
+        if (msg.fromMe && msg.priv) out.push(await decryptText(msg.cipher, pk));
+        else out.push(null);
+      }
+      chat.messages.forEach((m,i) => { if (m.fromMe && m.priv) { m.cipher = out[i]; m.priv = false; } });
+    }
 
-    async function lockCurrentChatWithPrivateKey() {
+    async function handlePrivateMenu() {
       const chat = findChatById(currentChatId);
-      if (!chat) {
-        showToast("Selecciona un chat primero.", "error");
-        return;
-      }
-      if (chat.doubleLocked) {
-        showToast("Este chat ya está cifrado con tu clave privada.", "error");
-        return;
-      }
-      const sharedKey = getUnlockedKeyForChat(chat.id);
-      const privateKey = getPrivateKeyUnlocked();
-      if (!sharedKey || !privateKey) {
-        showToast("Configura la clave compartida y tu clave privada en Ajustes.", "error");
-        return;
-      }
+      if (!chat) { showToast("Selecciona un chat primero.", "error"); return; }
+      const sharedKey = await ensureSharedKeyUnlocked(chat.id);
+      if (!sharedKey) { showToast("Configura la clave compartida del chat en Ajustes.", "error"); return; }
 
-      if (chat.messages && chat.messages.length) {
-        for (const msg of chat.messages) {
-          const inner = msg.cipher;
-          const outer = await encryptText(inner, privateKey);
-          msg.cipher = outer;
-        }
-      }
-      chat.doubleLocked = true;
-      saveAppState();
-      await updateLastPreviewForChat(chat.id);
-      renderChatList();
-      await renderChatMessages();
-      showToast("Chat cifrado con clave privada.", "ok");
-    }
-
-    async function unlockCurrentChatWithPrivateKey() {
-      const chat = findChatById(currentChatId);
-      if (!chat) {
-        showToast("Selecciona un chat primero.", "error");
-        return;
-      }
-      if (!chat.doubleLocked) {
-        showToast("Este chat no está cifrado con tu clave privada.", "error");
-        return;
-      }
-      const privateKey = getPrivateKeyUnlocked();
-      if (!privateKey) {
-        showToast("Desbloquea tu clave privada en Ajustes.", "error");
-        return;
-      }
-
-      if (chat.messages && chat.messages.length) {
-        const newCiphers = [];
-        for (const msg of chat.messages) {
-          const inner = await decryptText(msg.cipher, privateKey);
-          newCiphers.push(inner);
-        }
-        chat.messages.forEach((msg, idx) => {
-          msg.cipher = newCiphers[idx];
-        });
-      }
-      chat.doubleLocked = false;
-      saveAppState();
-      await updateLastPreviewForChat(chat.id);
-      renderChatList();
-      await renderChatMessages();
-      showToast("Capa privada quitada.", "ok");
-    }
-
-    function lockPrivateKeyMemory() {
-      privateState.unlocked = null;
-      savePrivateState();
-      renderPrivateKeyState();
-      renderChatMessages().catch(console.error);
-    }
-
-    async function togglePrivateLockCurrentChat() {
-      const chat = findChatById(currentChatId);
-      if (!chat) {
-        showToast("Selecciona un chat.", "error");
-        return;
-      }
-
-      const sharedKey = getUnlockedKeyForChat(chat.id);
-      if (!sharedKey) {
-        showToast("Configura la clave compartida del chat en Ajustes.", "error");
-        return;
-      }
-
-      if (chat.doubleLocked) {
-        let privateKey = getPrivateKeyUnlocked();
-        if (!privateKey) {
-          await unlockPrivateKey();
-          privateKey = getPrivateKeyUnlocked();
-          if (!privateKey) {
-            showToast("No se ha podido desbloquear tu clave privada.", "error");
-            return;
-          }
-        }
-
-        const ok = await askConfirm(
-          "Descifrar mensajes",
-          "Se quitará la capa de cifrado con tu clave privada. Los mensajes seguirán cifrados con la clave compartida del chat.",
-          "Descifrar"
-        );
-        if (!ok) return;
-
-        await unlockCurrentChatWithPrivateKey();
-        lockPrivateKeyMemory();
+      // Construir opciones según estado
+      const choices = [];
+      if (!chat.doubleLocked && !chat.privateMine) {
+        choices.push({ label: "Cifrar el chat", value: "all_on" });
+        choices.push({ label: "Cifrar mis mensajes", value: "mine_on" });
+        choices.push({ label: "Cifrar el chat y mis mensajes", value: "both_on" });
       } else {
-        let privateKey = getPrivateKeyUnlocked();
-        if (!privateKey) {
-          if (privateState.cipher) {
-            await unlockPrivateKey();
-            privateKey = getPrivateKeyUnlocked();
-          }
-          if (!privateKey) {
-            const key = await askText(
-              "Clave privada",
-              "Introduce tu clave privada. Se utilizará junto con la clave compartida de este chat.",
-              { placeholder: "Clave privada", password: true }
-            );
-            if (key == null || key === "") return;
-            privateState.unlocked = key;
-            savePrivateState();
-            renderPrivateKeyState();
-            privateKey = key;
-          }
-        }
-
-        const ok = await askConfirm(
-          "Cifrar mensajes",
-          "Se cifrarán todos los mensajes de este chat con tu clave privada además de la clave compartida. Para verlos tendrás que desbloquear tu clave privada.",
-          "Cifrar"
-        );
-        if (!ok) return;
-
-        await lockCurrentChatWithPrivateKey();
-        lockPrivateKeyMemory();
+        if (chat.doubleLocked) choices.push({ label: "Descifrar el chat", value: "all_off" });
+        if (chat.privateMine && !chat.doubleLocked) choices.push({ label: "Descifrar mis mensajes", value: "mine_off" });
+        if (chat.doubleLocked && chat.privateMine) choices.push({ label: "Descifrar el chat (mantener mis mensajes privados)", value: "all_off_keep_mine" });
       }
+
+      const opt = await askChoice("Opciones de cifrado", "Elige cómo aplicar tu clave privada en este chat:", choices);
+      if (!opt) return;
+
+      // Asegurar clave privada
+      async function needPrivateKey() {
+        let pk = getPrivateKeyUnlocked();
+        if (!pk && privateState.cipher) await unlockPrivateKey();
+        pk = getPrivateKeyUnlocked();
+        if (!pk) {
+          const k = await askText("Clave privada", "Introduce tu clave privada.", { password: true, placeholder: "Clave privada" });
+          if (k == null || k === "") return null;
+          privateState.unlocked = k; savePrivateState(); return k;
+        }
+        return pk;
+      }
+
+      if (opt === "all_on" || opt === "both_on") {
+        const pk = await needPrivateKey(); if (!pk) { showToast("No se pudo usar la clave privada.", "error"); return; }
+        await encryptAllWithPrivate(chat, pk);
+        chat.doubleLocked = true;
+        chat.privateMine = (opt === "both_on") ? true : false;
+        saveAppState();
+      } else if (opt === "mine_on") {
+        const pk = await needPrivateKey(); if (!pk) { showToast("No se pudo usar la clave privada.", "error"); return; }
+        if (chat.doubleLocked) { // venimos de todo cifrado -> descifra todo y aplica solo a mis mensajes
+          await decryptAllPrivate(chat, pk);
+        }
+        await encryptMineWithPrivate(chat, pk);
+        chat.doubleLocked = false;
+        chat.privateMine = true;
+        saveAppState();
+      } else if (opt === "all_off") {
+        const pk = await needPrivateKey(); if (!pk) return;
+        await decryptAllPrivate(chat, pk);
+        chat.doubleLocked = false;
+        // No tocamos privateMine
+        saveAppState();
+      } else if (opt === "mine_off") {
+        const pk = await needPrivateKey(); if (!pk) return;
+        await decryptMinePrivate(chat, pk);
+        chat.privateMine = false;
+        saveAppState();
+      } else if (opt === "all_off_keep_mine") {
+        const pk = await needPrivateKey(); if (!pk) return;
+        await decryptAllPrivate(chat, pk);
+        await encryptMineWithPrivate(chat, pk);
+        chat.doubleLocked = false;
+        chat.privateMine = true;
+        saveAppState();
+      }
+
+      await updateLastPreviewForChat(chat.id);
+      renderChatList();
+      await renderChatMessages();
+      // Por seguridad, olvidamos la clave privada en memoria
+      privateState.unlocked = null; savePrivateState(); renderPrivateKeyState();
     }
 
     /* Envío de mensaje */
-
     async function sendCurrentMessage() {
       const chat = findChatById(currentChatId);
       const textarea = document.getElementById("chatMessageInput");
-      if (!chat) {
-        showToast("Selecciona un chat primero.", "error");
-        return;
-      }
-      if (!textarea) return;
-      const text = textarea.value.trim();
-      if (!text) return;
+      if (!chat || !textarea) return;
+      const text = textarea.value.trim(); if (!text) return;
 
-      const sharedKey = getUnlockedKeyForChat(chat.id);
-      if (!sharedKey) {
-        showToast("Clave compartida bloqueada. Configúrala en Ajustes.", "error");
-        return;
-      }
-
-      const privateKey = getPrivateKeyUnlocked();
+      let sharedKey = getUnlockedKeyForChat(chat.id);
+      if (!sharedKey) sharedKey = await ensureSharedKeyUnlocked(chat.id);
+      if (!sharedKey) { showToast("Clave compartida bloqueada. Configúrala en Ajustes.", "error"); return; }
 
       try {
         const innerCipher = await encryptText(text, sharedKey);
         let finalCipher = innerCipher;
+        let willPriv = false;
+
         if (chat.doubleLocked) {
-          if (!privateKey) {
-            showToast("Desbloquea tu clave privada para enviar en este chat.", "error");
-            return;
-          }
-          finalCipher = await encryptText(innerCipher, privateKey);
+          const pk = getPrivateKeyUnlocked();
+          if (!pk) { showToast("Desbloquea tu clave privada para enviar en este chat.", "error"); return; }
+          finalCipher = await encryptText(innerCipher, pk);
+          willPriv = true;
+        } else if (chat.privateMine) {
+          const pk = getPrivateKeyUnlocked();
+          if (!pk) { showToast("Desbloquea tu clave privada para enviar privado.", "error"); return; }
+          finalCipher = await encryptText(innerCipher, pk);
+          willPriv = true;
         }
 
         if (!Array.isArray(chat.messages)) chat.messages = [];
         const now = Date.now();
-        chat.messages.push({
-          id: generateId(),
-          fromMe: true,
-          cipher: finalCipher,
-          timestamp: now
-        });
-
-        chat.lastPreview = text.length > 60 ? text.slice(0, 60) + "…" : text;
+        chat.messages.push({ id: generateId(), fromMe: true, cipher: finalCipher, timestamp: now, priv: willPriv });
+        chat.lastPreview = text.length > 60 ? text.slice(0,60) + "…" : text;
         chat.lastTimestamp = now;
 
         saveAppState();
         textarea.value = "";
         renderChatList();
         await renderChatMessages();
-
-        try {
-          await navigator.clipboard.writeText(finalCipher);
-          showToast("Mensaje cifrado copiado.", "ok");
-        } catch (e) {
-          console.warn("No se pudo copiar al portapapeles", e);
-        }
-      } catch (e) {
-        console.error(e);
-        showToast("Error al cifrar el mensaje.", "error");
-      }
+        try { await navigator.clipboard.writeText(finalCipher); showToast("Mensaje cifrado copiado.", "ok"); } catch {}
+      } catch { showToast("Error al cifrar el mensaje.", "error"); }
     }
 
-    /* Gestión de claves compartidas */
-
-    function renderKeysList() {
-      const container = document.getElementById("keysList");
-      if (!container) return;
-      container.innerHTML = "";
-
-      if (!appState.chats.length) {
-        container.textContent = "Sin chats para gestionar claves.";
-        return;
-      }
-
-      const list = document.createElement("div");
-
-      appState.chats.forEach(chat => {
-        const entry = keysState.entries[chat.id] || { cipher: null, unlocked: null };
-        if (!keysState.entries[chat.id]) {
-          keysState.entries[chat.id] = entry;
-        }
-
-        const row = document.createElement("div");
-        row.className = "settings-row";
-
-        const icon = document.createElement("div");
-        icon.className = "settings-icon green";
-
-        const body = document.createElement("div");
-        body.className = "settings-body";
-
-        const title = document.createElement("div");
-        title.className = "settings-title";
-        title.textContent = chat.name || "Chat";
-
-        const sub = document.createElement("div");
-        sub.className = "settings-sub";
-        let stateText = "Sin clave";
-        if (entry.cipher && entry.unlocked) stateText = "Guardada cifrada y activa";
-        else if (entry.cipher) stateText = "Guardada cifrada";
-        else if (!entry.cipher && entry.unlocked) stateText = "Solo en memoria";
-
-        const snippet = entry.cipher ? entry.cipher.slice(0, 18) + "…" : "";
-        sub.textContent = snippet ? stateText + " · " + snippet : stateText;
-
-        const actions = document.createElement("div");
-        actions.className = "settings-actions";
-
-        const saveBtn = document.createElement("button");
-        saveBtn.type = "button";
-        saveBtn.className = "btn secondary";
-        saveBtn.textContent = "Definir / cambiar";
-        saveBtn.addEventListener("click", () => {
-          configureKeyForChat(chat.id, true).catch(console.error);
-        });
-        actions.appendChild(saveBtn);
-
-        if (entry.cipher) {
-          const unlockBtn = document.createElement("button");
-          unlockBtn.type = "button";
-          unlockBtn.className = "btn secondary";
-          unlockBtn.textContent = "Desbloquear";
-          unlockBtn.addEventListener("click", () => {
-            unlockStoredKeyForChat(chat.id).catch(console.error);
-          });
-          actions.appendChild(unlockBtn);
-        }
-
-        const forgetBtn = document.createElement("button");
-        forgetBtn.type = "button";
-        forgetBtn.className = "btn secondary";
-        forgetBtn.textContent = "Olvidar";
-        forgetBtn.addEventListener("click", () => {
-          forgetKeyForChat(chat.id);
-        });
-        actions.appendChild(forgetBtn);
-
-        body.appendChild(title);
-        body.appendChild(sub);
-        body.appendChild(actions);
-
-        row.appendChild(icon);
-        row.appendChild(body);
-        list.appendChild(row);
-      });
-
-      container.appendChild(list);
-    }
-
+    /* Gestión de claves compartidas + ID */
     async function setKeyForChat(chatId, key, storeCipher) {
-      if (!keysState.entries[chatId]) {
-        keysState.entries[chatId] = { cipher: null, unlocked: null };
-      }
+      if (!keysState.entries[chatId]) keysState.entries[chatId] = { cipher: null, privCipher: null, unlocked: null };
       const entry = keysState.entries[chatId];
       entry.unlocked = key;
 
       if (storeCipher) {
-        try {
-          const cipher = await encryptText(key, key);
-          entry.cipher = cipher;
-        } catch (e) {
-          console.error(e);
-          showToast("No se ha podido guardar la clave.", "error");
-        }
+        try { entry.cipher = await encryptText(key, key); } catch { showToast("No se pudo guardar la clave.", "error"); }
+      }
+
+      const chat = findChatById(chatId);
+      if (chat && !chat.idToken) { try { chat.idToken = await encryptText(key, key); } catch {} saveAppState(); }
+
+      // si hay clave privada desbloqueada, opcionalmente protegemos también
+      if (privateState.unlocked) {
+        try { entry.privCipher = await encryptText(key, privateState.unlocked); } catch {}
       }
 
       saveKeysState();
       await updateLastPreviewForChat(chatId);
-      renderKeysList();
-      renderChatList();
-      renderChatMessages().catch(console.error);
+      renderKeysList(); renderChatList(); renderChatMessages().catch(() => {});
     }
 
     async function configureKeyForChat(chatId, storeCipher) {
-      const chat = findChatById(chatId);
-      if (!chat) return;
-
-      if (!keysState.entries[chatId]) {
-        keysState.entries[chatId] = { cipher: null, unlocked: null };
-      }
+      const chat = findChatById(chatId); if (!chat) return;
+      if (!keysState.entries[chatId]) keysState.entries[chatId] = { cipher: null, privCipher: null, unlocked: null };
       const entry = keysState.entries[chatId];
-
-      if (entry.unlocked) {
-        await setKeyForChat(chatId, entry.unlocked, storeCipher);
-        return;
-      }
-
-      const key = await askText(
-        "Clave compartida",
-        "Clave compartida para " + (chat.name || "chat") + ".",
-        { placeholder: "Clave compartida", password: true }
-      );
+      if (entry.unlocked) { await setKeyForChat(chatId, entry.unlocked, storeCipher); return; }
+      const key = await askText("Clave compartida", "Clave para " + (chat.name || "chat") + ".", { placeholder: "Clave", password: true });
       if (key == null || key === "") return;
-
       await setKeyForChat(chatId, key, storeCipher);
     }
 
+    function renderKeysList() {
+      const container = document.getElementById("keysList");
+      container.innerHTML = "";
+      if (!appState.chats.length) { container.textContent = "Sin chats para gestionar claves."; return; }
+
+      const list = document.createElement("div");
+      appState.chats.forEach(chat => {
+        const entry = keysState.entries[chat.id] || (keysState.entries[chat.id] = { cipher: null, privCipher: null, unlocked: null });
+
+        const row = document.createElement("div"); row.className = "settings-row";
+        const icon = document.createElement("div"); icon.className = "settings-icon green";
+        const body = document.createElement("div"); body.className = "settings-body";
+        const title = document.createElement("div"); title.className = "settings-title"; title.textContent = chat.name || "Chat";
+
+        const sub = document.createElement("div"); sub.className = "settings-sub";
+        let stateText = "Sin clave";
+        if (entry.cipher && entry.unlocked) stateText = "Guardada cifrada y activa";
+        else if (entry.cipher) stateText = "Guardada cifrada";
+        else if (!entry.cipher && entry.unlocked) stateText = "Solo en memoria";
+        if (entry.privCipher) stateText += " · protegida con clave privada";
+        sub.textContent = stateText;
+
+        const actions = document.createElement("div"); actions.className = "settings-actions";
+
+        const setBtn = document.createElement("button"); setBtn.type="button"; setBtn.className="btn secondary"; setBtn.textContent="Definir / cambiar";
+        setBtn.addEventListener("click", () => { changeOrSetKeyForChat(chat.id).catch(console.error); });
+        actions.appendChild(setBtn);
+
+        if (entry.cipher) {
+          const unlockBtn = document.createElement("button"); unlockBtn.type="button"; unlockBtn.className="btn secondary"; unlockBtn.textContent="Desbloquear";
+          unlockBtn.addEventListener("click", () => { unlockStoredKeyForChat(chat.id).catch(console.error); });
+          actions.appendChild(unlockBtn);
+        }
+
+        const viewBtn = document.createElement("button"); viewBtn.type="button"; viewBtn.className="btn secondary"; viewBtn.textContent="Ver clave";
+        viewBtn.addEventListener("click", () => { viewSharedKey(chat.id).catch(console.error); });
+        actions.appendChild(viewBtn);
+
+        const protectBtn = document.createElement("button"); protectBtn.type="button"; protectBtn.className="btn secondary"; protectBtn.textContent= entry.privCipher ? "Quitar protección privada" : "Proteger con mi clave";
+        protectBtn.addEventListener("click", () => { toggleProtectWithPrivate(chat.id).catch(console.error); });
+        actions.appendChild(protectBtn);
+
+        const forgetBtn = document.createElement("button"); forgetBtn.type="button"; forgetBtn.className="btn secondary"; forgetBtn.textContent="Olvidar";
+        forgetBtn.addEventListener("click", () => { forgetKeyForChat(chat.id); });
+        actions.appendChild(forgetBtn);
+
+        body.appendChild(title); body.appendChild(sub); body.appendChild(actions);
+        row.appendChild(icon); row.appendChild(body); list.appendChild(row);
+      });
+      container.appendChild(list);
+    }
+
+    async function changeOrSetKeyForChat(chatId) {
+      const chat = findChatById(chatId); if (!chat) return;
+      const entry = keysState.entries[chatId] || (keysState.entries[chatId] = { cipher: null, privCipher: null, unlocked: null });
+
+      if (!entry.cipher) { await configureKeyForChat(chatId, true); return; }
+
+      const oldKey = await askText("Cambiar clave", "Introduce la clave actual del chat.", { password: true, placeholder: "Clave actual" });
+      if (oldKey == null || oldKey === "") return;
+      try { await decryptText(entry.cipher, oldKey); } catch { showToast("Clave actual incorrecta.", "error"); return; }
+
+      const newKey = await askText("Nueva clave", "Introduce la nueva clave.", { password: true, placeholder: "Nueva clave" });
+      if (newKey == null || newKey === "") return;
+
+      const chatObj = findChatById(chatId);
+      // Re-cifrar mensajes según estado
+      if (chatObj.doubleLocked) {
+        const pk = getPrivateKeyUnlocked() || await askText("Clave privada", "Introduce tu clave privada para recifrar.", { password: true });
+        if (!pk) return;
+        const nc = [];
+        for (const m of chatObj.messages) {
+          const inner = await decryptText(m.cipher, pk);
+          const plain = await decryptText(inner, oldKey);
+          const newInner = await encryptText(plain, newKey);
+          const newOuter = await encryptText(newInner, pk);
+          nc.push(newOuter);
+        }
+        chatObj.messages.forEach((m,i) => m.cipher = nc[i]);
+      } else {
+        const nc = [];
+        for (const m of chatObj.messages) {
+          let innerPlain;
+          if (chatObj.privateMine && m.fromMe && m.priv) {
+            const pk = getPrivateKeyUnlocked() || await askText("Clave privada", "Introduce tu clave privada para recifrar.", { password: true });
+            if (!pk) return;
+            const inner = await decryptText(m.cipher, pk);
+            innerPlain = await decryptText(inner, oldKey);
+            const newIn = await encryptText(innerPlain, newKey);
+            m.cipher = await encryptText(newIn, pk);
+            continue;
+          } else {
+            innerPlain = await decryptText(m.cipher, oldKey);
+            nc.push(await encryptText(innerPlain, newKey));
+          }
+        }
+        // aplicar nc a los mensajes no privados
+        let j = 0;
+        for (const m of chatObj.messages) {
+          if (!(chatObj.privateMine && m.fromMe && m.priv)) { m.cipher = nc[j++]; }
+        }
+      }
+
+      entry.unlocked = newKey;
+      entry.cipher = await encryptText(newKey, newKey);
+      if (privateState.unlocked) entry.privCipher = await encryptText(newKey, privateState.unlocked);
+      saveKeysState(); saveAppState();
+      await updateLastPreviewForChat(chatId);
+      renderKeysList(); renderChatList(); renderChatMessages().catch(()=>{});
+      showToast("Clave actualizada.", "ok");
+    }
+
     async function unlockStoredKeyForChat(chatId) {
-      const chat = findChatById(chatId);
-      const entry = keysState.entries[chatId];
-      if (!chat || !entry || !entry.cipher) return;
-
-      const key = await askText(
-        "Desbloquear clave",
-        "Introduce la clave original de " + (chat.name || "chat") + ".",
-        { placeholder: "Clave original", password: true }
-      );
+      const entry = keysState.entries[chatId]; if (!entry || !entry.cipher) return;
+      const key = await askText("Desbloquear clave", "Introduce la clave original.", { password: true, placeholder: "Clave" });
       if (key == null || key === "") return;
-
       try {
         const plain = await decryptText(entry.cipher, key);
-        entry.unlocked = plain;
-        saveKeysState();
-        await updateLastPreviewForChat(chatId);
-        renderKeysList();
-        renderChatList();
-        renderChatMessages().catch(console.error);
-      } catch (e) {
-        console.error(e);
-        showToast("No se ha podido desbloquear la clave.", "error");
-      }
+        entry.unlocked = plain; saveKeysState();
+        await updateLastPreviewForChat(chatId); renderKeysList(); renderChatList(); renderChatMessages().catch(()=>{});
+      } catch { showToast("No se ha podido desbloquear.", "error"); }
     }
 
     function forgetKeyForChat(chatId) {
-      if (!keysState.entries[chatId]) {
-        keysState.entries[chatId] = { cipher: null, unlocked: null };
-      }
+      if (!keysState.entries[chatId]) keysState.entries[chatId] = { cipher: null, privCipher: null, unlocked: null };
       keysState.entries[chatId].cipher = null;
+      keysState.entries[chatId].privCipher = null;
       keysState.entries[chatId].unlocked = null;
-      saveKeysState();
-      renderKeysList();
-      renderChatList();
-      renderChatMessages().catch(console.error);
+      saveKeysState(); renderKeysList(); renderChatList(); renderChatMessages().catch(()=>{});
+    }
+
+    async function viewSharedKey(chatId) {
+      const k = await ensureSharedKeyUnlocked(chatId);
+      if (!k) return;
+      await openModal({
+        title: "Clave compartida",
+        message: "Esta clave se muestra solo en este dispositivo.",
+        keys: [{ label: "Clave", value: k }]
+      });
+    }
+
+    async function toggleProtectWithPrivate(chatId) {
+      const entry = keysState.entries[chatId] || (keysState.entries[chatId] = { cipher: null, privCipher: null, unlocked: null });
+      if (entry.privCipher) {
+        const ok = await askConfirm("Quitar protección", "La clave dejará de estar protegida con tu clave privada.");
+        if (!ok) return;
+        entry.privCipher = null; saveKeysState(); renderKeysList(); return;
+      }
+      // Proteger
+      let keyPlain = entry.unlocked;
+      if (!keyPlain && entry.cipher) {
+        const k = await askText("Clave original", "Introduce la clave del chat para protegerla con tu clave privada.", { password: true });
+        if (k == null || k === "") return;
+        try { keyPlain = await decryptText(entry.cipher, k); } catch { showToast("Clave incorrecta.", "error"); return; }
+      }
+      if (!keyPlain) {
+        keyPlain = await askText("Clave compartida", "No hay clave guardada. Escríbela para protegerla.", { password: true });
+        if (keyPlain == null || keyPlain === "") return;
+      }
+      let pk = getPrivateKeyUnlocked();
+      if (!pk && privateState.cipher) await unlockPrivateKey();
+      pk = getPrivateKeyUnlocked();
+      if (!pk) {
+        pk = await askText("Clave privada", "Introduce tu clave privada para proteger la clave del chat.", { password: true });
+        if (pk == null || pk === "") return;
+        privateState.unlocked = pk; savePrivateState(); renderPrivateKeyState();
+      }
+      entry.privCipher = await encryptText(keyPlain, pk);
+      saveKeysState(); renderKeysList();
+      privateState.unlocked = null; savePrivateState(); renderPrivateKeyState();
+    }
+
+    /* Unirse a chat */
+    async function joinChatFlow() {
+      const idCipher = await askText("Unirse a chat", "Pega el ID cifrado del chat compartido.", { placeholder: "ID cifrado" });
+      if (idCipher == null || idCipher === "") return;
+      const sharedKey = await askText("Clave compartida", "Introduce la clave compartida de este chat.", { placeholder: "Clave compartida", password: true });
+      if (sharedKey == null || sharedKey === "") return;
+
+      try { const plain = await decryptText(idCipher, sharedKey); if (plain !== sharedKey) throw new Error("mismatch"); }
+      catch { showToast("ID o clave incorrectos.", "error"); return; }
+
+      const name = await askText("Nombre del chat", "Nombre con el que verás este chat.", { placeholder: "Nombre del chat" });
+      if (name == null || name === "") return;
+
+      const chat = { id: generateId(), name, messages: [], lastPreview: "", lastTimestamp: null, locked: false, doubleLocked: false, privateMine: false, idToken: idCipher };
+      appState.chats.push(chat); saveAppState();
+      await setKeyForChat(chat.id, sharedKey, true);
+
+      await openModal({
+        title: "Chat unido",
+        message: "Comparte estos datos con la otra persona solo por un canal seguro.",
+        keys: [{ label: "ID cifrado", value: idCipher }, { label: "Clave compartida", value: sharedKey }]
+      });
+
+      renderChatList(); selectChat(chat.id); renderKeysList();
     }
 
     /* Clave privada */
-
     function renderPrivateKeyState() {
       const el = document.getElementById("privateKeyStateText");
-      if (!el) return;
       let text = "Sin clave privada";
       if (privateState.cipher && privateState.unlocked) text = "Guardada cifrada y activa";
       else if (privateState.cipher) text = "Guardada cifrada";
       else if (!privateState.cipher && privateState.unlocked) text = "Solo en memoria";
       el.textContent = text;
     }
-
     async function configurePrivateKey(storeCipher) {
-      const key = await askText(
-        "Clave privada",
-        storeCipher
-          ? "Introduce tu clave privada. Se guardará cifrada en este dispositivo."
-          : "Introduce tu clave privada solo para esta sesión.",
-        { placeholder: "Clave privada", password: true }
-      );
+      const key = await askText("Clave privada", "Introduce tu clave privada. Se guardará cifrada en este dispositivo.", { placeholder: "Clave privada", password: true });
       if (key == null || key === "") return;
-
       privateState.unlocked = key;
+      if (storeCipher) { try { privateState.cipher = await encryptText(key, key); } catch { showToast("No se pudo guardar la clave privada.", "error"); } }
+      savePrivateState(); renderPrivateKeyState(); renderChatMessages().catch(()=>{});
+    }
+    async function changeOrSetPrivateKey() {
+      if (!privateState.cipher) { await configurePrivateKey(true); return; }
+      const current = await askText("Cambiar clave privada", "Introduce tu clave privada actual.", { password: true });
+      if (current == null || current === "") return;
+      try { await decryptText(privateState.cipher, current); } catch { showToast("Clave privada actual incorrecta.", "error"); return; }
+      const next = await askText("Nueva clave privada", "Introduce la nueva clave privada.", { password: true });
+      if (next == null || next === "") return;
 
-      if (storeCipher) {
-        try {
-          privateState.cipher = await encryptText(key, key);
-        } catch (e) {
-          console.error(e);
-          showToast("No se ha podido guardar la clave privada.", "error");
+      // reenvolver mensajes que lleven capa privada
+      for (const chat of appState.chats) {
+        if (!chat.messages.length) continue;
+        const out = [];
+        for (const msg of chat.messages) {
+          if (chat.doubleLocked || (chat.privateMine && msg.fromMe && msg.priv)) {
+            const inner = await decryptText(msg.cipher, current);
+            out.push(await encryptText(inner, next));
+          } else out.push(null);
         }
+        chat.messages.forEach((m,i) => { if (out[i]) m.cipher = out[i]; });
       }
-
-      savePrivateState();
-      renderPrivateKeyState();
-      renderChatMessages().catch(console.error);
+      privateState.unlocked = next;
+      privateState.cipher = await encryptText(next, next);
+      savePrivateState(); saveAppState(); renderPrivateKeyState(); renderChatList(); renderChatMessages().catch(()=>{});
+      showToast("Clave privada actualizada.", "ok");
     }
-
     async function unlockPrivateKey() {
-      if (!privateState.cipher) {
-        showToast("No hay clave privada guardada.", "error");
-        return;
-      }
-      const key = await askText(
-        "Desbloquear clave privada",
-        "Introduce tu clave privada.",
-        { placeholder: "Clave privada", password: true }
-      );
+      if (!privateState.cipher) { showToast("No hay clave privada guardada.", "error"); return; }
+      const key = await askText("Desbloquear clave privada", "Introduce tu clave privada.", { password: true });
       if (key == null || key === "") return;
-
-      try {
-        const plain = await decryptText(privateState.cipher, key);
-        privateState.unlocked = plain;
-        savePrivateState();
-        renderPrivateKeyState();
-        renderChatMessages().catch(console.error);
-      } catch (e) {
-        console.error(e);
-        showToast("No se ha podido desbloquear la clave privada.", "error");
-      }
+      try { privateState.unlocked = await decryptText(privateState.cipher, key); savePrivateState(); renderPrivateKeyState(); renderChatMessages().catch(()=>{}); }
+      catch { showToast("No se ha podido desbloquear la clave privada.", "error"); }
     }
-
-    function forgetPrivateKey() {
-      privateState = { cipher: null, unlocked: null };
-      savePrivateState();
-      renderPrivateKeyState();
-      renderChatMessages().catch(console.error);
-    }
+    function forgetPrivateKey() { privateState = { cipher: null, unlocked: null }; savePrivateState(); renderPrivateKeyState(); renderChatMessages().catch(()=>{}); }
 
     /* Borrados */
-
     async function clearChats() {
-      const ok = await askConfirm(
-        "Borrar chats",
-        "Se borrarán todos los chats locales.",
-        "Borrar"
-      );
-      if (!ok) return;
-      appState = { chats: [] };
-      saveAppState();
-      renderChatList();
-      showChatList();
-      renderChatMessages().catch(console.error);
-      renderKeysList();
+      const ok = await askConfirm("Borrar chats", "Se borrarán todos los chats locales."); if (!ok) return;
+      appState = { chats: [] }; saveAppState(); renderChatList(); showChatList(); renderChatMessages().catch(()=>{}); renderKeysList();
     }
-
     async function clearAll() {
-      const ok = await askConfirm(
-        "Borrar todo",
-        "Se borrarán chats y claves de este dispositivo.",
-        "Borrar todo"
-      );
-      if (!ok) return;
-      appState = { chats: [] };
-      keysState = { entries: {} };
-      privateState = { cipher: null, unlocked: null };
-      localStorage.removeItem(STATE_KEY);
-      localStorage.removeItem(KEYS_STATE_KEY);
-      localStorage.removeItem(PRIVATE_STATE_KEY);
-      renderChatList();
-      showChatList();
-      renderChatMessages().catch(console.error);
-      renderKeysList();
-      renderPrivateKeyState();
+      const ok = await askConfirm("Borrar todo", "Se borrarán chats y claves de este dispositivo."); if (!ok) return;
+      appState = { chats: [] }; keysState = { entries: {} }; privateState = { cipher: null, unlocked: null };
+      localStorage.removeItem(STATE_KEY); localStorage.removeItem(KEYS_STATE_KEY); localStorage.removeItem(PRIVATE_STATE_KEY);
+      renderChatList(); showChatList(); renderChatMessages().catch(()=>{}); renderKeysList(); renderPrivateKeyState();
     }
 
     /* Tema */
-
     function applyTheme(theme) {
-      if (theme === "light") {
-        document.body.classList.add("light");
-      } else {
-        document.body.classList.remove("light");
-      }
+      if (theme === "dark") document.body.classList.add("dark"); else document.body.classList.remove("dark");
       localStorage.setItem(THEME_KEY, theme);
-
-      const lightBtn = document.getElementById("lightModeBtn");
-      const darkBtn = document.getElementById("darkModeBtn");
-      if (lightBtn && darkBtn) {
-        lightBtn.classList.toggle("active", theme === "light");
-        darkBtn.classList.toggle("active", theme === "dark");
-      }
     }
+    function initTheme() { const stored = localStorage.getItem(THEME_KEY); applyTheme(stored === "dark" ? "dark" : "light"); }
 
-    function toggleTheme() {
-      const current = document.body.classList.contains("light") ? "light" : "dark";
-      const next = current === "light" ? "dark" : "light";
-      applyTheme(next);
-    }
-
-    function initTheme() {
-      const stored = localStorage.getItem(THEME_KEY);
-      const initial = stored === "light" || stored === "dark" ? stored : "light";
-      applyTheme(initial);
-    }
-
-    /* Navegación inferior */
-
+    /* Navegación */
     function setupNavigation() {
       const navItems = document.querySelectorAll(".nav-item");
-      const viewPanels = document.querySelectorAll(".view-panel");
-
-      function activateView(viewName) {
-        navItems.forEach(item => {
-          const v = item.getAttribute("data-view");
-          item.classList.toggle("active", v === viewName);
-        });
-        viewPanels.forEach(panel => {
-          panel.classList.toggle("active", panel.id === "view-" + viewName);
-        });
-        if (viewName === "chats") {
-          showChatList();
-        }
+      const panels = document.querySelectorAll(".view-panel");
+      function activate(view) {
+        navItems.forEach(i => i.classList.toggle("active", i.getAttribute("data-view") === view));
+        panels.forEach(p => p.classList.toggle("active", p.id === "view-" + view));
+        if (view === "chats") showChatList(); else setBottomNavVisible(true);
       }
-
-      navItems.forEach(item => {
-        item.addEventListener("click", () => {
-          const target = item.getAttribute("data-view");
-          if (target) activateView(target);
-        });
-      });
+      navItems.forEach(i => i.addEventListener("click", () => activate(i.getAttribute("data-view"))));
     }
 
     /* Manual */
-
     function setupManual() {
       const pwdInput = document.getElementById("manualPassword");
       const plainArea = document.getElementById("manualPlain");
@@ -2498,277 +1515,153 @@
       const copyPlainBtn = document.getElementById("manualCopyPlainBtn");
       const pastePlainBtn = document.getElementById("manualPastePlainBtn");
       const statusEl = document.getElementById("manualStatus");
+      const pwdToggle = document.getElementById("manualPasswordToggle");
 
-      function setStatus(text, type) {
-        if (!statusEl) return;
-        statusEl.textContent = text || "";
-        statusEl.className = "status" + (type ? " " + type : "");
-      }
+      function setStatus(t, type) { statusEl.textContent = t || ""; statusEl.className = "status" + (type ? " " + type : ""); }
+      pwdToggle.addEventListener("click", () => { pwdInput.type = pwdInput.type === "password" ? "text" : "password"; });
 
-      if (encryptBtn) {
-        encryptBtn.addEventListener("click", async () => {
-          if (!pwdInput || !plainArea || !cipherArea) return;
-          const pwd = pwdInput.value;
-          const plain = plainArea.value;
-          if (!pwd) {
-            setStatus("Escribe una contraseña para cifrar.", "error");
-            pwdInput.focus();
-            return;
-          }
-          if (!plain.trim()) {
-            setStatus("Escribe texto en claro para cifrar.", "error");
-            plainArea.focus();
-            return;
-          }
-          try {
-            const cipher = await encryptText(plain, pwd);
-            cipherArea.value = cipher;
-            setStatus("Texto cifrado listo para copiar.", "ok");
-          } catch (e) {
-            console.error(e);
-            setStatus("Error al cifrar.", "error");
-          }
-        });
-      }
-
-      if (decryptBtn) {
-        decryptBtn.addEventListener("click", async () => {
-          if (!pwdInput || !plainArea || !cipherArea) return;
-          const pwd = pwdInput.value;
-          const cipher = cipherArea.value;
-          if (!pwd) {
-            setStatus("Escribe la contraseña para descifrar.", "error");
-            pwdInput.focus();
-            return;
-          }
-          if (!cipher.trim()) {
-            setStatus("Pega texto cifrado para descifrar.", "error");
-            cipherArea.focus();
-            return;
-          }
-          try {
-            const plain = await decryptText(cipher, pwd);
-            plainArea.value = plain;
-            setStatus("Texto descifrado.", "ok");
-          } catch (e) {
-            console.error(e);
-            setStatus("No se ha podido descifrar. ¿Contraseña correcta?", "error");
-          }
-        });
-      }
-
-      if (clearBtn) {
-        clearBtn.addEventListener("click", () => {
-          if (plainArea) plainArea.value = "";
-          if (cipherArea) cipherArea.value = "";
-          setStatus("", "");
-        });
-      }
-
-      if (copyBtn) {
-        copyBtn.addEventListener("click", async () => {
-          if (!cipherArea) return;
-          const value = cipherArea.value.trim();
-          if (!value) {
-            setStatus("No hay nada que copiar.", "error");
-            return;
-          }
-          try {
-            await navigator.clipboard.writeText(value);
-            setStatus("Texto cifrado copiado.", "ok");
-          } catch (e) {
-            console.error(e);
-            setStatus("No se ha podido copiar.", "error");
-          }
-        });
-      }
-
-      if (pasteCipherBtn) {
-        pasteCipherBtn.addEventListener("click", async () => {
-          if (!cipherArea) return;
-          try {
-            const text = await navigator.clipboard.readText();
-            cipherArea.value = text;
-            setStatus("Texto pegado en cifrado.", "ok");
-          } catch (e) {
-            console.error(e);
-            setStatus("No se ha podido pegar.", "error");
-          }
-        });
-      }
-
-      if (copyPlainBtn) {
-        copyPlainBtn.addEventListener("click", async () => {
-          if (!plainArea) return;
-          const value = plainArea.value.trim();
-          if (!value) {
-            setStatus("No hay texto en claro que copiar.", "error");
-            return;
-          }
-          try {
-            await navigator.clipboard.writeText(value);
-            setStatus("Texto en claro copiado.", "ok");
-          } catch (e) {
-            console.error(e);
-            setStatus("No se ha podido copiar.", "error");
-          }
-        });
-      }
-
-      if (pastePlainBtn) {
-        pastePlainBtn.addEventListener("click", async () => {
-          if (!plainArea) return;
-          try {
-            const text = await navigator.clipboard.readText();
-            plainArea.value = text;
-            setStatus("Texto pegado en claro.", "ok");
-          } catch (e) {
-            console.error(e);
-            setStatus("No se ha podido pegar.", "error");
-          }
-        });
-      }
+      encryptBtn.addEventListener("click", async () => {
+        const pwd = pwdInput.value; const plain = plainArea.value;
+        if (!pwd) return setStatus("Escribe una contraseña para cifrar.", "error");
+        if (!plain.trim()) return setStatus("Escribe texto en claro para cifrar.", "error");
+        try { cipherArea.value = await encryptText(plain, pwd); setStatus("Texto cifrado listo para copiar.", "ok"); } catch { setStatus("Error al cifrar.", "error"); }
+      });
+      decryptBtn.addEventListener("click", async () => {
+        const pwd = pwdInput.value; const cipher = cipherArea.value;
+        if (!pwd) return setStatus("Escribe la contraseña para descifrar.", "error");
+        if (!cipher.trim()) return setStatus("Pega texto cifrado para descifrar.", "error");
+        try { plainArea.value = await decryptText(cipher, pwd); setStatus("Texto descifrado.", "ok"); } catch { setStatus("No se ha podido descifrar. ¿Contraseña correcta?", "error"); }
+      });
+      clearBtn.addEventListener("click", () => { plainArea.value = ""; cipherArea.value = ""; setStatus("", ""); });
+      copyBtn.addEventListener("click", async () => { const v = cipherArea.value.trim(); if (!v) return setStatus("No hay nada que copiar.", "error"); try { await navigator.clipboard.writeText(v); setStatus("Texto cifrado copiado.", "ok"); } catch { setStatus("No se ha podido copiar.", "error"); } });
+      pasteCipherBtn.addEventListener("click", async () => { try { cipherArea.value = await navigator.clipboard.readText(); setStatus("Texto pegado en cifrado.", "ok"); } catch { setStatus("No se ha podido pegar.", "error"); } });
+      copyPlainBtn.addEventListener("click", async () => { const v = plainArea.value.trim(); if (!v) return setStatus("No hay texto en claro que copiar.", "error"); try { await navigator.clipboard.writeText(v); setStatus("Texto en claro copiado.", "ok"); } catch { setStatus("No se ha podido copiar.", "error"); } });
+      pastePlainBtn.addEventListener("click", async () => { try { plainArea.value = await navigator.clipboard.readText(); setStatus("Texto pegado en claro.", "ok"); } catch { setStatus("No se ha podido pegar.", "error"); } });
     }
 
     /* Ajustes */
-
     function setupSettings() {
-      const lightBtn = document.getElementById("lightModeBtn");
-      const darkBtn = document.getElementById("darkModeBtn");
-      const clearChatsBtn = document.getElementById("clearChatsBtn");
-      const clearAllBtn = document.getElementById("clearAllBtn");
-      const privateSaveBtn = document.getElementById("privateSaveBtn");
-      const privateUnlockBtn = document.getElementById("privateUnlockBtn");
-      const privateForgetBtn = document.getElementById("privateForgetBtn");
+      document.getElementById("lightModeBtn").addEventListener("click", () => applyTheme("light"));
+      document.getElementById("darkModeBtn").addEventListener("click", () => applyTheme("dark"));
+      document.getElementById("clearChatsBtn").addEventListener("click", () => clearChats().catch(console.error));
+      document.getElementById("clearAllBtn").addEventListener("click", () => clearAll().catch(console.error));
+      document.getElementById("privateSaveBtn").addEventListener("click", () => changeOrSetPrivateKey().catch(console.error));
+      document.getElementById("privateUnlockBtn").addEventListener("click", () => unlockPrivateKey().catch(console.error));
+      document.getElementById("privateForgetBtn").addEventListener("click", () => forgetPrivateKey());
+      document.getElementById("copyUserIdBtn").addEventListener("click", async () => { try { await navigator.clipboard.writeText(userId); showToast("ID copiado.", "ok"); } catch { showToast("No se ha podido copiar el ID.", "error"); } });
+    }
 
-      if (lightBtn) lightBtn.addEventListener("click", () => applyTheme("light"));
-      if (darkBtn) darkBtn.addEventListener("click", () => applyTheme("dark"));
-      if (clearChatsBtn) clearChatsBtn.addEventListener("click", () => clearChats().catch(console.error));
-      if (clearAllBtn) clearAllBtn.addEventListener("click", () => clearAll().catch(console.error));
+    /* Editar chats */
+    function setEditMode(enabled) {
+      isEditMode = enabled;
+      const editBtn = document.getElementById("chatsEditBtn");
+      const searchBtn = document.getElementById("chatsSearchBtn");
+      const newChatBtn = document.getElementById("newChatBtn");
+      const joinChatBtn = document.getElementById("joinChatBtn");
+      const delBtn = document.getElementById("chatsDeleteSelectedBtn");
+      const encBtn = document.getElementById("chatsEncryptSelectedBtn");
+      if (!enabled) selectedChatIds.clear();
+      editBtn.textContent = enabled ? "Listo" : "Editar";
+      searchBtn.classList.toggle("hidden", enabled);
+      newChatBtn.classList.toggle("hidden", enabled);
+      joinChatBtn.classList.toggle("hidden", enabled);
+      delBtn.classList.toggle("hidden", !enabled);
+      encBtn.classList.toggle("hidden", !enabled);
+      renderChatList();
+    }
+    async function deleteSelectedChats() {
+      if (!selectedChatIds.size) return;
+      const ok = await askConfirm("Eliminar chats", "Se eliminarán " + selectedChatIds.size + " chats seleccionados."); if (!ok) return;
+      appState.chats = appState.chats.filter(c => !selectedChatIds.has(c.id));
+      selectedChatIds.forEach(id => delete keysState.entries[id]);
+      selectedChatIds.clear(); saveAppState(); saveKeysState(); setEditMode(false); showChatList(); renderKeysList();
+    }
+    async function lockSelectedChats() {
+      if (!selectedChatIds.size) return;
+      const ok = await askConfirm("Bloquear chats", "Se bloquearán " + selectedChatIds.size + " chats en este dispositivo."); if (!ok) return;
+      for (const c of appState.chats) if (selectedChatIds.has(c.id)) c.locked = true;
+      saveAppState(); selectedChatIds.clear(); setEditMode(false); renderChatList();
+    }
 
-      if (privateSaveBtn) {
-        privateSaveBtn.addEventListener("click", () => {
-          configurePrivateKey(true).catch(console.error);
-        });
-      }
-      if (privateUnlockBtn) {
-        privateUnlockBtn.addEventListener("click", () => {
-          unlockPrivateKey().catch(console.error);
-        });
-      }
-      if (privateForgetBtn) {
-        privateForgetBtn.addEventListener("click", () => {
-          forgetPrivateKey();
-        });
-      }
+    function lockAllSessionKeys() {
+      Object.values(keysState.entries).forEach(e => e.unlocked = null);
+      privateState.unlocked = null; savePrivateState();
+      renderPrivateKeyState(); renderChatList(); renderChatMessages().catch(()=>{});
     }
 
     /* UI de chats */
-
     function setupChatsUI() {
       const newChatBtn = document.getElementById("newChatBtn");
+      const joinChatBtn = document.getElementById("joinChatBtn");
       const sendMessageBtn = document.getElementById("sendMessageBtn");
       const chatMessageInput = document.getElementById("chatMessageInput");
       const chatBackBtn = document.getElementById("chatBackBtn");
-      const chatLockBtn = document.getElementById("chatLockBtn");
+      const chatMenuBtn = document.getElementById("chatMenuBtn");
+      const chatsEditBtn = document.getElementById("chatsEditBtn");
+      const chatsDeleteBtn = document.getElementById("chatsDeleteSelectedBtn");
+      const chatsEncryptBtn = document.getElementById("chatsEncryptSelectedBtn");
+      const chatSearchInput = document.getElementById("chatSearchInput");
+      const chatsSearchBtn = document.getElementById("chatsSearchBtn");
 
-      if (newChatBtn) {
-        newChatBtn.addEventListener("click", async () => {
-          const name = await askText(
-            "Nuevo chat",
-            "Nombre del chat o contacto.",
-            { placeholder: "Nombre del chat" }
-          );
-          if (name == null || name === "") return;
+      newChatBtn.addEventListener("click", async () => {
+        const name = await askText("Nuevo chat", "Nombre del chat o contacto.", { placeholder: "Nombre del chat" });
+        if (name == null || name === "") return;
 
-          const chat = {
-            id: generateId(),
-            name: name,
-            messages: [],
-            lastPreview: "",
-            lastTimestamp: null,
-            doubleLocked: false,
-            locked: false
-          };
-          if (!Array.isArray(appState.chats)) appState.chats = [];
-          appState.chats.push(chat);
-          saveAppState();
+        const chat = { id: generateId(), name, messages: [], lastPreview: "", lastTimestamp: null, locked: false, doubleLocked: false, privateMine: false, idToken: null };
+        appState.chats.push(chat); saveAppState();
 
-          const randomBytes = crypto.getRandomValues(new Uint8Array(16));
-          const key = Array.from(randomBytes)
-            .map(b => b.toString(16).padStart(2, "0"))
-            .join("");
+        const suggestion = generateSharedKeySuggestion();
+        const keyInput = await askText("Clave compartida", "Se sugiere usar esta clave generada aleatoriamente. Puedes usarla tal cual o modificarla.", { defaultValue: suggestion });
+        const finalKey = (keyInput != null && keyInput !== "") ? keyInput : suggestion;
+        await setKeyForChat(chat.id, finalKey, true);
 
-          await setKeyForChat(chat.id, key, true);
+        const updatedChat = findChatById(chat.id);
+        const idToken = updatedChat && updatedChat.idToken ? updatedChat.idToken : "(no disponible)";
 
-          await showKeyModal(
-            "Clave compartida",
-            "Clave generada para este chat. Compártela con la otra persona y guárdala donde prefieras.",
-            key
-          );
-
-          renderChatList();
-          selectChat(chat.id);
-          renderKeysList();
+        await openModal({
+          title: "Datos del chat",
+          message: "Guárdalos en un lugar seguro.",
+          keys: [
+            { label: "Clave compartida", value: finalKey },
+            { label: "ID cifrado (para unirse desde otro dispositivo)", value: idToken }
+          ]
         });
-      }
 
-      if (sendMessageBtn) {
-        sendMessageBtn.addEventListener("click", () => {
-          sendCurrentMessage().catch(console.error);
-        });
-      }
+        renderChatList(); selectChat(chat.id); renderKeysList();
+      });
 
-      if (chatMessageInput) {
-        chatMessageInput.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            sendCurrentMessage().catch(console.error);
-          }
-        });
-      }
+      joinChatBtn.addEventListener("click", () => joinChatFlow().catch(console.error));
+      sendMessageBtn.addEventListener("click", () => sendCurrentMessage().catch(console.error));
 
-      if (chatBackBtn) {
-        chatBackBtn.addEventListener("click", () => {
-          showChatList();
-        });
-      }
+      chatMessageInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendCurrentMessage().catch(console.error); }
+      });
+      chatMessageInput.addEventListener("input", () => {
+        chatMessageInput.style.height = "auto";
+        chatMessageInput.style.height = Math.min(chatMessageInput.scrollHeight, 90) + "px";
+      });
 
-      if (chatLockBtn) {
-        chatLockBtn.addEventListener("click", () => {
-          togglePrivateLockCurrentChat().catch(console.error);
-        });
-      }
+      chatBackBtn.addEventListener("click", () => showChatList());
+      chatMenuBtn.addEventListener("click", () => handlePrivateMenu().catch(console.error));
+
+      chatsEditBtn.addEventListener("click", () => setEditMode(!isEditMode));
+      chatsDeleteBtn.addEventListener("click", () => deleteSelectedChats().catch(console.error));
+      chatsEncryptBtn.addEventListener("click", () => lockSelectedChats().catch(console.error));
+
+      chatSearchInput.addEventListener("input", () => { chatSearchTerm = chatSearchInput.value.trim().toLowerCase(); renderChatList(); });
+      chatsSearchBtn.addEventListener("click", () => chatSearchInput.focus());
     }
 
     document.addEventListener("DOMContentLoaded", () => {
       setupModal();
-
-      if (!window.crypto || !window.crypto.subtle) {
-        showToast("Tu navegador no soporta Web Crypto moderno.", "error");
-      }
-
-      initTheme();
-
-      const themeToggleBtn = document.getElementById("themeToggleBtn");
-      if (themeToggleBtn) {
-        themeToggleBtn.addEventListener("click", () => toggleTheme());
-      }
-
-      setupNavigation();
-      setupManual();
-      setupSettings();
-
-      loadAppState();
-      loadKeysState();
-      loadPrivateState();
-
+      initTheme(); setupNavigation(); setupManual(); setupSettings();
+      loadAppState(); loadKeysState(); loadPrivateState(); loadUserId(); renderPrivateKeyState();
       setupChatsUI();
+      renderChatList(); renderChatMessages().catch(()=>{}); renderKeysList();
 
-      renderChatList();
-      renderChatMessages().catch(console.error);
-      renderKeysList();
-      renderPrivateKeyState();
+      // Seguridad: al salir bloquear claves en memoria
+      window.addEventListener("blur", lockAllSessionKeys);
+      document.addEventListener("visibilitychange", () => { if (document.hidden) lockAllSessionKeys(); });
     });
   </script>
 </body>
